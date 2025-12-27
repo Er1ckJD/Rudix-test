@@ -1,81 +1,121 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/theme';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function WithdrawScreen() {
   const router = useRouter();
   const [amount, setAmount] = useState('');
+  const maxBalance = 1850.50; // Esto vendría de tu backend/contexto
+
+  const handleWithdraw = () => {
+    const val = parseFloat(amount);
+    if (!val || val <= 0) {
+      Alert.alert('Error', 'Ingresa un monto válido.');
+      return;
+    }
+    if (val > maxBalance) {
+      Alert.alert('Saldo insuficiente', 'No tienes suficiente saldo disponible.');
+      return;
+    }
+    // Lógica de retiro aquí
+    Alert.alert('Éxito', `Se ha procesado tu retiro de $${val}`, [
+      { text: 'OK', onPress: () => router.back() }
+    ]);
+  };
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={{ padding: 20 }}>
-        
-        <Text style={styles.label}>Monto a retirar</Text>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.closeButton}>
+          <MaterialCommunityIcons name="close" size={28} color="#000" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Retirar dinero</Text>
+        <View style={{ width: 28 }} /> 
+      </View>
+
+      <View style={styles.content}>
+        <Text style={styles.balanceLabel}>Disponible para retirar</Text>
+        <Text style={styles.balanceValue}>${maxBalance.toFixed(2)}</Text>
+
         <View style={styles.inputContainer}>
-            <Text style={styles.currencySymbol}>$</Text>
-            <TextInput 
-                style={styles.input}
-                placeholder="0.00"
-                keyboardType="numeric"
-                value={amount}
-                onChangeText={setAmount}
-                autoFocus
-            />
-        </View>
-        <Text style={styles.helperText}>Disponible: $1,850.50</Text>
-
-        <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Cuenta destino</Text>
-            <TouchableOpacity style={styles.bankCard} onPress={() => router.push('/driver/wallet/payment-methods')}>
-                <View style={styles.bankIcon}>
-                    <Ionicons name="card" size={24} color="#fff" />
-                </View>
-                <View style={{ flex: 1 }}>
-                    <Text style={styles.bankName}>BBVA Bancomer</Text>
-                    <Text style={styles.bankNumber}>**** 9932</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#ccc" />
-            </TouchableOpacity>
+           <Text style={styles.currencySymbol}>$</Text>
+           <TextInput
+             style={styles.input}
+             placeholder="0.00"
+             keyboardType="numeric"
+             value={amount}
+             onChangeText={setAmount}
+             autoFocus
+           />
         </View>
 
-      </ScrollView>
+        <View style={styles.destinationCard}>
+          <View>
+            <Text style={styles.destinationLabel}>Destino</Text>
+            <Text style={styles.destinationValue}>BBVA Bancomer •••• 4589</Text>
+          </View>
+          <TouchableOpacity onPress={() => router.push('/driver/wallet/payment-methods')}>
+             <Text style={styles.changeText}>Cambiar</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity 
-            style={[styles.btn, !amount && styles.btnDisabled]} 
-            disabled={!amount}
-            onPress={() => alert('¡Retiro procesado!')} // Aquí conectarías tu API
-        >
-            <Text style={styles.btnText}>Confirmar Retiro</Text>
+        <TouchableOpacity style={styles.confirmButton} onPress={handleWithdraw}>
+          <Text style={styles.confirmText}>Confirmar Retiro</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9f9f9' },
-  label: { fontSize: 16, color: '#666', marginBottom: 10, textAlign: 'center', marginTop: 20 },
-  inputContainer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
-  currencySymbol: { fontSize: 40, fontWeight: 'bold', color: '#333', marginRight: 5 },
-  input: { fontSize: 50, fontWeight: 'bold', color: '#333', minWidth: 100, textAlign: 'center' },
-  helperText: { textAlign: 'center', color: Colors.light.primary, fontWeight: 'bold', marginBottom: 40 },
-  
-  section: { marginBottom: 20 },
-  sectionTitle: { fontSize: 14, fontWeight: 'bold', color: '#888', marginBottom: 15, textTransform: 'uppercase' },
-  
-  bankCard: { 
-      backgroundColor: '#fff', borderRadius: 15, padding: 15, flexDirection: 'row', alignItems: 'center', gap: 15,
-      elevation: 2, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 5
+  container: { flex: 1, backgroundColor: '#fff' },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
-  bankIcon: { width: 45, height: 45, borderRadius: 22.5, backgroundColor: '#004481', alignItems: 'center', justifyContent: 'center' },
-  bankName: { fontWeight: 'bold', fontSize: 16, color: '#333' },
-  bankNumber: { color: '#888' },
-
-  footer: { padding: 20, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f0f0f0' },
-  btn: { backgroundColor: Colors.light.primary, padding: 18, borderRadius: 30, alignItems: 'center' },
-  btnDisabled: { backgroundColor: '#ccc' },
-  btnText: { color: '#fff', fontWeight: 'bold', fontSize: 18 },
+  headerTitle: { fontSize: 18, fontWeight: '600' },
+  closeButton: { padding: 4 },
+  content: { flex: 1, paddingHorizontal: 20, paddingTop: 20 },
+  balanceLabel: { textAlign: 'center', color: '#666', fontSize: 14 },
+  balanceValue: { textAlign: 'center', fontSize: 24, fontWeight: 'bold', marginVertical: 8 },
+  inputContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 40,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    paddingBottom: 10,
+  },
+  currencySymbol: { fontSize: 40, fontWeight: '300', color: '#000' },
+  input: { fontSize: 40, fontWeight: '300', color: '#000', minWidth: 100, textAlign: 'center' },
+  destinationCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa',
+    padding: 16,
+    borderRadius: 12,
+  },
+  destinationLabel: { fontSize: 12, color: '#666' },
+  destinationValue: { fontSize: 16, fontWeight: '600', marginTop: 4 },
+  changeText: { color: '#007AFF', fontWeight: '600' },
+  footer: { padding: 20, paddingBottom: 40 },
+  confirmButton: {
+    backgroundColor: '#000',
+    paddingVertical: 18,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  confirmText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
 });

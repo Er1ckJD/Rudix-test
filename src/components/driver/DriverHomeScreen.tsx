@@ -9,6 +9,8 @@ import EarningsHeader from '@/components/driver/EarningsHeader';
 import RideRequestModal from '@/components/driver/RideRequestModal';
 import { useAuth } from '@/hooks/useAuth';
 import { DrawerActions } from '@react-navigation/native';
+import TripActionSheet, { TripStatus } from './TripActionSheet';
+import TripSummaryModal from './TripSummaryModal';
 
 // Los estilos JSON son específicos de Google Maps.
 // Al usar el mapa nativo (Apple Maps en iOS), estos estilos se ignorarán automáticamente.
@@ -29,6 +31,29 @@ export default function DriverHomeScreen() {
   const { user } = useAuth();
   const [isOnline, setIsOnline] = useState(false);
   const [requestVisible, setRequestVisible] = useState(false);
+  const [currentTripStatus, setCurrentTripStatus] = useState<TripStatus | null>(null);
+  const [showSummary, setShowSummary] = useState(false);
+
+  const simulateAcceptRide = () => {
+    setCurrentTripStatus(TripStatus.ACCEPTED);
+  };
+
+  const handleFinishRating = (rating: number) => {
+    console.log(`Viaje calificado con ${rating} estrellas`);
+    setShowSummary(false);
+    // Aquí enviarías los datos al backend
+  };
+
+  const handleTripAction = (newStatus: TripStatus) => {
+    console.log('Cambiando estado a:', newStatus);
+    
+    if (newStatus === TripStatus.COMPLETED) {
+      setShowSummary(true);
+      setCurrentTripStatus(null);
+    } else {
+      setCurrentTripStatus(newStatus);
+    }
+  };
 
   const getInitials = () => {
     if (!user) return '';
@@ -117,6 +142,34 @@ export default function DriverHomeScreen() {
         visible={requestVisible}
         onAccept={handleAcceptTrip}
         onDecline={() => setRequestVisible(false)}
+      />
+
+      {currentTripStatus && (
+        <TripActionSheet
+          status={currentTripStatus}
+          passengerName="Ana García"
+          passengerRating={4.8}
+          passengerPhone="555-1234-5678"
+          address="Av. Reforma 222, CDMX"
+          onAction={handleTripAction}
+          onCancel={() => setCurrentTripStatus(null)}
+        />
+      )}
+      
+      {!currentTripStatus && (
+          <TouchableOpacity 
+            onPress={simulateAcceptRide} 
+            style={{position: 'absolute', top: 100, right: 20, backgroundColor: 'white', padding: 10}}>
+            <Text>Simular Aceptar Viaje</Text>
+          </TouchableOpacity>
+      )}
+
+      <TripSummaryModal
+        visible={showSummary}
+        price={85.50} // Dato dinámico
+        paymentMethod="cash" // Dato dinámico
+        passengerName="Ana García"
+        onComplete={handleFinishRating}
       />
 
     </View>

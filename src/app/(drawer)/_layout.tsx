@@ -21,6 +21,14 @@ export default function DrawerLayout() {
       >
         {/* Aquí definimos que la pantalla principal es el grupo (tabs) */}
         <Drawer.Screen
+          name="security" // El nombre del archivo sin extensión
+          options={{
+            drawerLabel: () => null, // Oculta el texto
+            title: null,
+            drawerItemStyle: { display: 'none' } // Oculta el ítem completamente del menú visual
+          }}
+        />
+        <Drawer.Screen
           name="(tabs)" 
           options={{
             drawerLabel: 'Inicio',
