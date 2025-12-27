@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useNavigation } from 'expo-router';
 import { Colors } from '@/constants/theme';
 import GoOnlineButton from '@/components/driver/GoOnlineButton';
 import EarningsHeader from '@/components/driver/EarningsHeader';
@@ -21,8 +21,9 @@ const MAP_STYLE = [
   { featureType: "water", elementType: "geometry", stylers: [{ color: "#e9e9e9" }, { lightness: 17 }] }
 ];
 
-export default function DriverHomeScreen({ drawerNavigation }: { drawerNavigation: any }) {
+export default function DriverHomeScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
   const { user } = useAuth();
   const [isOnline, setIsOnline] = useState(false);
   const [requestVisible, setRequestVisible] = useState(false);
@@ -77,7 +78,7 @@ export default function DriverHomeScreen({ drawerNavigation }: { drawerNavigatio
 
       <EarningsHeader />
 
-      <TouchableOpacity style={styles.profileBtn} onPress={() => drawerNavigation.dispatch(DrawerActions.openDrawer())}>
+      <TouchableOpacity style={styles.profileBtn} onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
         <ImagePlaceholder initials={getInitials()} />
       </TouchableOpacity>
 
