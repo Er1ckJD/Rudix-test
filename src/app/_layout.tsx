@@ -23,7 +23,7 @@ function ThemeManagedLayout() {
     const inOnboardingGroup = segments[0] === '(onboarding)';
 
     if (user && (inAuthGroup || inOnboardingGroup)) {
-      router.replace('/');
+      router.replace('/(drawer)/(tabs)');
     } else if (!user && !inAuthGroup && !inOnboardingGroup) {
       router.replace('/auth');
     }

@@ -15,14 +15,12 @@ export default function LoginOptionsScreen() {
         return;
     }
     try {
-      // 1. Ejecutar el login simulado
+      // ONLY execute the login.
+      // The state change (user) will automatically trigger
+      // the effect in _layout.tsx that will move us to the correct screen.
       await mockLogin();
-      
-      // 2. Navegar MANUALMENTE al drawer para asegurar que no se quede trabado
-      // Usamos 'replace' para que no pueda volver atrás al login con el botón 'atrás'
-      router.replace('/(drawer)/(tabs)'); 
     } catch (error) {
-      console.error("Error en login simulado:", error);
+      console.error("Error in simulated login:", error);
     }
   };
 
