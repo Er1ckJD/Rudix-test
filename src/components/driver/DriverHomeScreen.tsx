@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps'; //
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useNavigation } from 'expo-router';
 import { Colors } from '@/constants/theme';
@@ -10,6 +10,8 @@ import RideRequestModal from '@/components/driver/RideRequestModal';
 import { useAuth } from '@/hooks/useAuth';
 import { DrawerActions } from '@react-navigation/native';
 
+// Los estilos JSON son específicos de Google Maps.
+// Al usar el mapa nativo (Apple Maps en iOS), estos estilos se ignorarán automáticamente.
 const MAP_STYLE = [
   { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#747474" }, { lightness: "23" }] },
   { featureType: "poi.business", stylers: [{ visibility: "off" }] },
@@ -64,7 +66,7 @@ export default function DriverHomeScreen() {
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
-        provider="google"
+        // provider="google" <--- ELIMINADO para usar el mapa nativo sin API Key
       >
         {isOnline && (
           <Marker coordinate={{ latitude: 37.78825, longitude: -122.4324 }}>
@@ -149,7 +151,6 @@ const styles = StyleSheet.create({
     elevation: 20,
     shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10
   },
-
   goButtonContainer: {
     position: 'absolute',
     top: -40,
@@ -157,7 +158,6 @@ const styles = StyleSheet.create({
     zIndex: 50,
     elevation: 10,
   },
-
   statusText: {
     fontSize: 20,
     fontWeight: 'bold',

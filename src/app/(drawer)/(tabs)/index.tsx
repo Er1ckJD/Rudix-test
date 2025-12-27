@@ -4,13 +4,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRouter } from 'expo-router';
 import { DrawerActions } from '@react-navigation/native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps'; // Sin provider forzado
 import { Colors } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
 import DriverHomeScreen from '@/components/driver/DriverHomeScreen';
 
-function PassengerHomeScreen({ drawerNavigation }: { drawerNavigation: any }) {
+// Eliminamos la prop 'drawerNavigation' ya no es necesaria
+function PassengerHomeScreen() {
   const router = useRouter();
+  const navigation = useNavigation(); // Usamos el hook directo
   const insets = useSafeAreaInsets();
 
   const INITIAL_REGION = {
@@ -24,16 +26,12 @@ function PassengerHomeScreen({ drawerNavigation }: { drawerNavigation: any }) {
     <View style={styles.container}>
       
       <MapView
-        provider={PROVIDER_GOOGLE}
         style={styles.map}
+        // Ajustamos el padding para que el logo de Google/Legal no quede tapado por el menú inferior
         mapPadding={{ top: insets.top, right: 0, bottom: 280, left: 0 }}
         initialRegion={INITIAL_REGION}
         showsUserLocation={true}
         showsMyLocationButton={false}
-        customMapStyle={[
-          { featureType: "poi", stylers: [{ visibility: "off" }] },
-          { featureType: "transit", stylers: [{ visibility: "off" }] }
-        ]}
       >
          <Marker coordinate={{ latitude: 19.4340, longitude: -99.1350 }}>
             <View style={styles.carMarker}>
@@ -42,10 +40,12 @@ function PassengerHomeScreen({ drawerNavigation }: { drawerNavigation: any }) {
          </Marker>
       </MapView>
 
+      {/* Header Flotante (Menú y Ubicación) */}
       <View style={[styles.headerLayer, { top: insets.top + 10 }]}>
           <TouchableOpacity 
             style={styles.roundButton} 
-            onPress={() => drawerNavigation.dispatch(DrawerActions.openDrawer())}
+            // Esto buscará automáticamente el Drawer padre y lo abrirá
+            onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
           >
             <Ionicons name="menu" size={24} color={Colors.grey[1400]} />
           </TouchableOpacity>
@@ -64,10 +64,12 @@ function PassengerHomeScreen({ drawerNavigation }: { drawerNavigation: any }) {
           </TouchableOpacity>
       </View>
 
+      {/* Botón GPS */}
       <TouchableOpacity style={[styles.gpsButton, { bottom: 300 + insets.bottom }]}>
           <Ionicons name="locate" size={24} color={Colors.light.primary} />
       </TouchableOpacity>
 
+      {/* Menú Inferior (BottomSheet) */}
       <View style={[styles.bottomSheet, { paddingBottom: insets.bottom + 20 }]}>
           
           <View style={styles.dragHandle} />
@@ -116,30 +118,24 @@ function PassengerHomeScreen({ drawerNavigation }: { drawerNavigation: any }) {
 
 export default function HomeScreen() {
   const { activeRole } = useAuth();
-  const navigation = useNavigation();
-  const drawerNavigation = navigation.getParent('MyDrawer');
-
-  if (!drawerNavigation) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Loading Drawer Navigation...</Text>
-      </View>
-    );
-  }
+  
+  // ELIMINADO: const drawerNavigation = navigation.getParent('MyDrawer');
+  // ELIMINADO: if (!drawerNavigation) return ...
+  // Ya no bloqueamos la renderización.
 
   if (activeRole === 'driver') {
-    return <DriverHomeScreen drawerNavigation={drawerNavigation} />;
+    // DriverHomeScreen ya maneja su propia navegación internamente
+    return <DriverHomeScreen />;
   }
 
-  return <PassengerHomeScreen drawerNavigation={drawerNavigation} />;
+  return <PassengerHomeScreen />;
 }
 
 
-// Componente auxiliar mejorado
+// Componente auxiliar
 const FavoriteItem = ({ icon, color, title, subtitle }: any) => (
     <TouchableOpacity style={styles.favItem}>
         <View style={[styles.favIconCircle, { backgroundColor: color + '20' }]}> 
-            {/* El +'20' añade transparencia hexadecimal al color base */}
             <Ionicons name={icon} size={22} color={color} />
         </View>
         <View style={styles.favTextContainer}>
@@ -151,7 +147,7 @@ const FavoriteItem = ({ icon, color, title, subtitle }: any) => (
 );
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' }, // Fondo blanco base
+  container: { flex: 1, backgroundColor: '#fff' },
   map: { ...StyleSheet.absoluteFillObject },
   
   // Header
@@ -182,7 +178,7 @@ const styles = StyleSheet.create({
   greenDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.light.primary },
   locationText: { fontWeight: 'bold', fontSize: 14, color: Colors.grey[1400] },
 
-  // Marcador de coche en mapa
+  // Marcador
   carMarker: {
       backgroundColor: Colors.light.primary,
       padding: 8, borderRadius: 20,
@@ -200,16 +196,15 @@ const styles = StyleSheet.create({
       zIndex: 5
   },
 
-  // --- AQUÍ ESTÁ LA MAGIA DEL FOOTER ---
+  // Footer / BottomSheet
   bottomSheet: {
-      position: 'absolute', // Clave: Flota sobre el mapa
-      bottom: 0, left: 0, right: 0, // Anclado abajo y a los lados
+      position: 'absolute', 
+      bottom: 0, left: 0, right: 0,
       backgroundColor: '#fff',
-      borderTopLeftRadius: 30, // Curvas suaves
+      borderTopLeftRadius: 30, 
       borderTopRightRadius: 30,
       paddingTop: 15,
       paddingHorizontal: 25,
-      // Sombra hacia arriba (Negativo Y)
       shadowColor: '#000', 
       shadowOffset: { width: 0, height: -5 },
       shadowOpacity: 0.1,
@@ -236,14 +231,14 @@ const styles = StyleSheet.create({
   searchPlaceholder: { flex: 1, fontSize: 16, color: Colors.grey[1100], fontWeight: '500' },
   timeBadge: {
       flexDirection: 'row', alignItems: 'center', gap: 4,
-      backgroundColor: Colors.grey[1400], // Oscuro para contraste
+      backgroundColor: Colors.grey[1400], 
       paddingHorizontal: 10, paddingVertical: 5,
       borderRadius: 20
   },
   timeText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
 
   // Favoritos
-  favoritesList: { maxHeight: 200 }, // Limita altura para pantallas pequeñas
+  favoritesList: { maxHeight: 200 }, 
   favItem: {
       flexDirection: 'row', alignItems: 'center',
       paddingVertical: 12,
