@@ -89,7 +89,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // --- Authentication Functions ---
 
     const register = async (data: AuthData) => {
-        setLoading(true);
         setError(null);
         try {
             const response = await apiClient.post('/auth/register', data);
@@ -103,13 +102,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const errorMessage = handleError(err);
             setError(errorMessage);
             return { success: false, error: errorMessage };
-        } finally {
-            setLoading(false);
         }
     };
 
     const login = async (email: string, password: string) => {
-        setLoading(true);
         setError(null);
         try {
             const response = await apiClient.post('/auth/login', { email, password });
@@ -123,13 +119,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const errorMessage = handleError(err);
             setError(errorMessage);
             return { success: false, error: errorMessage };
-        } finally {
-            setLoading(false);
         }
     };
 
     const verifyPhone = async (phone: string) => {
-        setLoading(true);
         setError(null);
         try {
             const response = await apiClient.post('/auth/send-otp', { telefono: phone });
@@ -138,13 +131,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const errorMessage = handleError(err);
             setError(errorMessage);
             return { success: false, error: errorMessage };
-        } finally {
-            setLoading(false);
         }
     };
 
     const verifyCode = async (phone: string, code: string) => {
-        setLoading(true);
         setError(null);
         try {
             const response = await apiClient.post('/auth/verify-otp', { telefono: phone, code });
@@ -158,8 +148,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const errorMessage = handleError(err);
             setError(errorMessage);
             return { success: false, error: errorMessage };
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -181,7 +169,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // --- Mock Login Function for Development ---
     const mockLogin = async () => {
-        setLoading(true);
         setError(null);
         try {
             const mockUser: User = {
@@ -203,8 +190,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const errorMessage = handleError(err);
             setError(errorMessage);
             console.error('Mock Login Failed:', errorMessage);
-        } finally {
-            setLoading(false);
         }
     };
 
