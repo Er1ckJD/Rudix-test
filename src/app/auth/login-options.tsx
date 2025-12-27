@@ -10,7 +10,20 @@ export default function LoginOptionsScreen() {
   const { mockLogin } = useAuth(); // Get mockLogin from useAuth
 
   const handleFacebookLogin = async () => {
-    await mockLogin(); // Call mockLogin to simulate authentication
+    if (!mockLogin) {
+        console.error("mockLogin is not available in production");
+        return;
+    }
+    try {
+      // 1. Ejecutar el login simulado
+      await mockLogin();
+      
+      // 2. Navegar MANUALMENTE al drawer para asegurar que no se quede trabado
+      // Usamos 'replace' para que no pueda volver atrás al login con el botón 'atrás'
+      router.replace('/(drawer)/(tabs)'); 
+    } catch (error) {
+      console.error("Error en login simulado:", error);
+    }
   };
 
   return (

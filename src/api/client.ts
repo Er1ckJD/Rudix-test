@@ -14,10 +14,13 @@ export const apiClient = axios.create({
 
 // Interceptor para inyectar el token automáticamente en cada petición
 apiClient.interceptors.request.use(async (config) => {
-  // Aquí recuperarás el token de SecureStore en el siguiente paso
-  const token = await SecureStore.getItemAsync('userToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  try {
+    const token = await SecureStore.getItemAsync('userToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch (e) {
+    console.error('Failed to get token from secure store', e);
   }
   return config;
 });

@@ -15,24 +15,31 @@ export default function RideRequestModal({ visible, onAccept, onDecline }: RideR
   const progress = useSharedValue(1);
 
   useEffect(() => {
-    if (visible) {
-      setTimeLeft(15);
-      progress.value = 1; // Reset progress
-      const timer = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            onDecline();
-            return 0;
-          }
-          // Update progress bar
-          progress.value = withTiming((prev - 1) / 15, { duration: 1000, easing: Easing.linear });
-          return prev - 1;
-        });
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [visible, progress, onDecline]);
+    if (!visible) return;
+
+    setTimeLeft(15);
+    progress.value = 1;
+    
+    // Use end time to avoid issues if the app is backgrounded
+    const endTime = Date.now() + 15000; 
+
+    const timer = setInterval(() => {
+      const now = Date.now();
+      const remaining = Math.max(0, Math.ceil((endTime - now) / 1000));
+      
+      setTimeLeft(remaining);
+      
+      // Smoothly update the progress bar
+      progress.value = withTiming(remaining / 15, { duration: 1000, easing: Easing.linear });
+
+      if (remaining <= 0) {
+        clearInterval(timer);
+        onDecline();
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [visible]);
 
   const animatedProgressStyle = useAnimatedStyle(() => ({
     width: `${progress.value * 100}%`,

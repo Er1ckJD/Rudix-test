@@ -15,7 +15,7 @@ function ThemeManagedLayout() {
   const router = useRouter();
 
   useEffect(() => {
-    if (loading) {
+    if (loading || segments.length === 0) {
       return;
     }
 

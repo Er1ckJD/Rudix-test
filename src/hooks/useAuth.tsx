@@ -25,6 +25,10 @@ interface AuthData {
     password?: string;
 }
 
+interface SendOtpResponse {
+    message: string;
+}
+
 // Define the shape of the context
 interface AuthContextType {
     user: User | null;
@@ -34,11 +38,11 @@ interface AuthContextType {
     error: string | null;
     login: (email: string, password: string) => Promise<{ success: boolean, error?: string }>;
     register: (data: AuthData) => Promise<{ success: boolean, error?: string }>;
-    verifyPhone: (phone: string) => Promise<{ success: boolean; data?: any; error?: string; }>;
+    verifyPhone: (phone: string) => Promise<{ success: boolean; data?: SendOtpResponse; error?: string; }>;
     verifyCode: (phone: string, code: string) => Promise<{ success: boolean; error?: string; }>;
     logout: () => void;
     switchActiveRole: (role: UserRole) => void;
-    mockLogin: () => Promise<void>; // Add mockLogin to the interface
+    mockLogin?: () => Promise<void>; // Make mockLogin optional
 }
 
 // Create the context
@@ -93,7 +97,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             await saveToken(authToken);
             setUser(userData);
             setToken(authToken);
-            setActiveRole(userData.roles.includes('driver') ? 'driver' : 'user');
+            setActiveRole('user');
             return { success: true };
         } catch (err) {
             const errorMessage = handleError(err);
@@ -113,7 +117,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             await saveToken(authToken);
             setUser(userData);
             setToken(authToken);
-            setActiveRole(userData.roles?.includes('driver') ? 'driver' : 'user');
+            setActiveRole('user');
             return { success: true };
         } catch (err) {
             const errorMessage = handleError(err);
@@ -148,7 +152,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             await saveToken(authToken);
             setUser(userData);
             setToken(authToken);
-            setActiveRole(userData.roles?.includes('driver') ? 'driver' : 'user');
+            setActiveRole('user');
             return { success: true };
         } catch (err) {
             const errorMessage = handleError(err);
@@ -217,7 +221,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         verifyCode,
         logout,
         switchActiveRole,
-        mockLogin // Add mockLogin to the context value
+        ...(__DEV__ ? { mockLogin } : {})
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

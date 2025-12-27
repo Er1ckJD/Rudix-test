@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AuthButton from '@/components/ui/AuthButton';
+import { Colors } from '@/constants/theme';
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -43,8 +44,8 @@ export default function WelcomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  backgroundPlaceholder: { flex: 1, backgroundColor: '#222' }, // Gris oscuro simulando foto
+  container: { flex: 1, backgroundColor: Colors.common.black },
+  backgroundPlaceholder: { flex: 1, backgroundColor: Colors.grey[1500] }, // Gris oscuro simulando foto
   safeArea: { flex: 1 },
   contentContainer: {
     flex: 1,
@@ -55,9 +56,9 @@ const styles = StyleSheet.create({
   textContainer: { marginBottom: 30 },
   indicatorContainer: { flexDirection: 'row', gap: 5, marginBottom: 15 },
   indicator: { width: 8, height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.3)' },
-  indicatorActive: { width: 20, backgroundColor: '#fff' },
-  title: { fontSize: 36, fontWeight: 'bold', color: '#fff', textTransform: 'uppercase' },
-  subtitle: { fontSize: 16, color: '#ccc', marginTop: 5 },
+  indicatorActive: { width: 20, backgroundColor: Colors.common.white },
+  title: { fontSize: 36, fontWeight: 'bold', color: Colors.common.white, textTransform: 'uppercase' },
+  subtitle: { fontSize: 16, color: Colors.grey[800], marginTop: 5 },
   buttonContainer: { width: '100%', marginBottom: 20 },
   footerText: { color: 'rgba(255,255,255,0.5)', fontSize: 10, textAlign: 'center' },
 });
