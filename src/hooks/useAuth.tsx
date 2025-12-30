@@ -2,6 +2,7 @@ import React, { useState, useEffect, createContext, useContext, ReactNode } from
 import { apiClient } from '@/api/client';
 import { saveToken, deleteToken, getToken } from '@/api/storage';
 import { AxiosError } from 'axios';
+import { Alert } from 'react-native';
 
 // Define user role
 type UserRole = 'user' | 'driver';
@@ -77,13 +78,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     const handleError = (err: unknown) => {
+        let errorMessage = 'An unknown error occurred.';
         if (err instanceof AxiosError) {
-            return err.response?.data?.message || 'Error de conexión';
+            errorMessage = err.response?.data?.message || 'Error de conexión';
+        } else if (err instanceof Error) {
+            errorMessage = err.message;
         }
-        if (err instanceof Error) {
-            return err.message;
-        }
-        return 'An unknown error occurred.';
+
+        Alert.alert('Error de Autenticación', errorMessage);
+        
+        return errorMessage;
     };
 
     // --- Authentication Functions ---

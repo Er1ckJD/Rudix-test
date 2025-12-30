@@ -76,7 +76,11 @@ function PassengerHomeScreen() {
 
           <Text style={styles.greetingTitle}>¿A dónde vamos?</Text>
 
-          <TouchableOpacity style={styles.searchBox} activeOpacity={0.9}>
+          <TouchableOpacity 
+              style={styles.searchBox} 
+              activeOpacity={0.9}
+              onPress={() => router.push('/ride/destination-search')}
+          >
               <Ionicons name="search" size={22} color={Colors.light.primary} style={{marginRight: 10}} />
               <Text style={styles.searchPlaceholder}>Buscar destino...</Text>
               <View style={styles.timeBadge}>
