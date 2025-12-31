@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useColorScheme as useDeviceColorScheme } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { storage } from '@/utils/storage';
 
 type ColorScheme = 'light' | 'dark';
 
@@ -23,7 +23,7 @@ export const ColorSchemeProvider = ({ children }: { children: React.ReactNode })
   useEffect(() => {
     const loadTheme = async () => {
       try {
-        const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY) as ColorScheme | null;
+        const savedTheme = await storage.getItem(THEME_STORAGE_KEY) as ColorScheme | null;
         if (savedTheme) {
           _setColorScheme(savedTheme);
           setIsSystem(false);
@@ -45,7 +45,7 @@ export const ColorSchemeProvider = ({ children }: { children: React.ReactNode })
     _setColorScheme(scheme);
     setIsSystem(false);
     try {
-      await AsyncStorage.setItem(THEME_STORAGE_KEY, scheme);
+      await storage.setItem(THEME_STORAGE_KEY, scheme);
     } catch (error) {
       console.error('Failed to save theme to storage', error);
     }

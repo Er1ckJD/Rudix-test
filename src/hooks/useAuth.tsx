@@ -43,7 +43,7 @@ interface AuthContextType {
     verifyCode: (phone: string, code: string) => Promise<{ success: boolean; error?: string; }>;
     logout: () => void;
     switchActiveRole: (role: UserRole) => void;
-    mockLogin?: () => Promise<void>; // Make mockLogin optional
+    // mockLogin se elimina de la interfaz pública del contexto
 }
 
 // Create the context
@@ -148,7 +148,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             return { success: true, data: response.data };
         } catch (err) {
             const errorMessage = handleError(err);
-            setError(errorMessage);
+setError(errorMessage);
             return { success: false, error: errorMessage };
         }
     };
@@ -185,32 +185,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.warn(`User does not have the role: ${role}`);
         }
     };
+    
+    // --- Dev-only functionality ---
+    useEffect(() => {
+        if (__DEV__) {
+            const mockLogin = async () => {
+                console.log('Attempting mock login...');
+                setError(null);
+                try {
+                    const mockUser: User = {
+                        id: 'dev-mock-id',
+                        nombres: 'Dev',
+                        apellidos: 'User',
+                        email: 'dev@rudix.com',
+                        telefono: '9876543210',
+                        roles: ['user', 'driver']
+                    };
+                    const mockToken = 'dev-mock-token';
 
-    // --- Mock Login Function for Development ---
-    const mockLogin = async () => {
-        setError(null);
-        try {
-            const mockUser: User = {
-                id: 'dev-mock-id',
-                nombres: 'Dev',
-                apellidos: 'User',
-                email: 'dev@rudix.com',
-                telefono: '9876543210',
-                roles: ['user', 'driver']
+                    await saveToken(mockToken);
+                    setUser(mockUser);
+                    setToken(mockToken);
+                    setActiveRole('user');
+                    console.log('Mock Login Successful! User set.');
+                } catch (err) {
+                    const errorMessage = handleError(err);
+                    setError(errorMessage);
+                    console.error('Mock Login Failed:', errorMessage);
+                }
             };
-            const mockToken = 'dev-mock-token'; // A dummy token
+            
+            // Expose mock login function globally in development
+            (global as any).mockLogin = mockLogin;
+            console.log('>> Mock login function available as `global.mockLogin()`');
 
-            await saveToken(mockToken);
-            setUser(mockUser);
-            setToken(mockToken);
-            setActiveRole('user'); // Default to user role after mock login
-            console.log('Mock Login Successful!');
-        } catch (err) {
-            const errorMessage = handleError(err);
-            setError(errorMessage);
-            console.error('Mock Login Failed:', errorMessage);
+            // Cleanup on unmount
+            return () => {
+                delete (global as any).mockLogin;
+            };
         }
-    };
+    }, []); // Empty dependency array, runs only once on mount
 
     // The value provided to the context consumers
     const value = {
@@ -225,7 +239,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         verifyCode,
         logout,
         switchActiveRole,
-        ...(__DEV__ ? { mockLogin } : {})
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
