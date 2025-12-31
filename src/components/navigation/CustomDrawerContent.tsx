@@ -56,7 +56,8 @@ export default function CustomDrawerContent(props: any) {
                 label="Inicio"
                 icon="map-outline"
                 onPress={() => {
-                    props.navigation.jumpTo('(tabs)', { screen: 'index' });
+                    const targetScreen = isDriver ? 'home' : '(tabs)';
+                    props.navigation.jumpTo(targetScreen);
                     props.navigation.closeDrawer();
                 }}
             />
