@@ -2,7 +2,8 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
 // 1. Cambia esto por tu URL real (puedes usar variables de entorno .env)
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL; 
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+console.log('API URL:', BASE_URL); // Verifica qué imprime esto en tu consola 
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,

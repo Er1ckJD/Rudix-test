@@ -1,43 +1,59 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+// src/app/_layout.tsx
+import { useEffect } from 'react';
+import { View, Text } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import 'react-native-reanimated';
-import { useEffect } from 'react';
-import { Text, View } from 'react-native';
 
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { ColorSchemeProvider, useColorScheme } from '@/hooks/use-color-scheme';
 
-function ThemeManagedLayout() {
+// Layout interno con acceso a auth
+function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const { user, loading, activeRole } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
-    if (loading || segments.length === 0) {
+    if (loading) return;
+
+    const inAuthGroup = segments[0] === '(auth)';
+    const inPassengerGroup = segments[0] === '(passenger)';
+    const inDriverGroup = segments[0] === '(driver)';
+
+    // Usuario NO autenticado
+    if (!user) {
+      if (!inAuthGroup) {
+        router.replace('/(auth)');
+      }
       return;
     }
 
-    const inAuthGroup = segments[0] === 'auth';
-    const inOnboardingGroup = segments[0] === '(onboarding)';
-
-    if (user && (inAuthGroup || inOnboardingGroup)) {
-      // Redirect based on the active role
+    // Usuario autenticado
+    if (inAuthGroup) {
+      // Redirigir según rol activo
       if (activeRole === 'driver') {
-        router.replace('/driver/home');
+        router.replace('/(driver)/(home)');
       } else {
-        router.replace('/(drawer)/(tabs)');
+        router.replace('/(passenger)/(home)');
       }
-    } else if (!user && !inAuthGroup && !inOnboardingGroup) {
-      router.replace('/auth');
+      return;
     }
-  }, [user, loading, segments, router, activeRole]);
+
+    // Validar acceso a sección conductor
+    if (inDriverGroup && !user.roles?.includes('driver')) {
+      // No tiene permiso, regresar a pasajero
+      router.replace('/(passenger)/(home)');
+    }
+
+  }, [user, loading, segments, activeRole]);
 
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>loading drawer navigation...</Text>
+        <Text>Cargando...</Text>
       </View>
     );
   }
@@ -45,26 +61,23 @@ function ThemeManagedLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-        <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
-        <Stack.Screen name="auth" options={{ headerShown: false }} />
-        <Stack.Screen name="history" options={{ headerShown: false }} />
-        <Stack.Screen name="driver" options={{ headerShown: false }} />
-        <Stack.Screen name="profile" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(passenger)" />
+        <Stack.Screen name="(driver)" />
+        <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
     </ThemeProvider>
   );
 }
 
-
+// Provider wrapper
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <ColorSchemeProvider>
-        <ThemeManagedLayout />
-      </ColorSchemeProvider>
-    </AuthProvider>
+    <ColorSchemeProvider>
+      <AuthProvider>
+        <RootLayoutNav />
+      </AuthProvider>
+    </ColorSchemeProvider>
   );
 }
