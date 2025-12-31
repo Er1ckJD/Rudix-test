@@ -1,16 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert, SafeAreaView } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
-import { useRouter, Stack } from 'expo-router';
+import { useRouter, Stack, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
-import { BlurView } from 'expo-blur'; // Opcional: Si tienes expo-blur, si no, usa View con opacidad
+import { usePreventRemove } from '@react-navigation/native';
 
 type TripStatus = 'searching' | 'accepted' | 'arrived' | 'in_progress';
 
 export default function TripTrackingScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
   const [status, setStatus] = useState<TripStatus>('searching');
+
+  // Bloquea el gesto de "atrás" durante un viaje activo para evitar perder la pantalla
+  usePreventRemove(
+    status === 'accepted' || status === 'arrived' || status === 'in_progress',
+    ({ data }) => {
+      Alert.alert(
+        '¿Salir de la pantalla del viaje?',
+        'Hay un viaje en curso. Si sales, puedes volver a encontrar el seguimiento desde el menú principal.',
+        [
+          { text: "Quedarse", style: 'cancel', onPress: () => {} },
+          { 
+            text: 'Salir',
+            style: 'destructive',
+            // Permite que la acción de navegación continúe si el usuario confirma
+            onPress: () => navigation.dispatch(data.action),
+          },
+        ]
+      );
+    }
+  );
 
   // SIMULACIÓN DE ESTADOS DEL VIAJE (Backend Mock)
   useEffect(() => {
@@ -42,6 +63,7 @@ export default function TripTrackingScreen() {
       {/* MAPA DE FONDO */}
       <MapView
         style={StyleSheet.absoluteFill}
+        provider="google"
         initialRegion={{
           latitude: 19.4326, longitude: -99.1332,
           latitudeDelta: 0.01, longitudeDelta: 0.01,

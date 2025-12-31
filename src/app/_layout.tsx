@@ -10,7 +10,7 @@ import { ColorSchemeProvider, useColorScheme } from '@/hooks/use-color-scheme';
 
 function ThemeManagedLayout() {
   const colorScheme = useColorScheme();
-  const { user, loading } = useAuth();
+  const { user, loading, activeRole } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
@@ -23,11 +23,16 @@ function ThemeManagedLayout() {
     const inOnboardingGroup = segments[0] === '(onboarding)';
 
     if (user && (inAuthGroup || inOnboardingGroup)) {
-      router.replace('/(drawer)/(tabs)');
+      // Redirect based on the active role
+      if (activeRole === 'driver') {
+        router.replace('/driver/home');
+      } else {
+        router.replace('/(drawer)/(tabs)');
+      }
     } else if (!user && !inAuthGroup && !inOnboardingGroup) {
       router.replace('/auth');
     }
-  }, [user, loading, segments, router]);
+  }, [user, loading, segments, router, activeRole]);
 
   if (loading) {
     return (

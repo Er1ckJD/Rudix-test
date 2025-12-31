@@ -60,20 +60,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // This effect runs once on startup to check for an existing token
     useEffect(() => {
         const loadUserFromToken = async () => {
+            setLoading(true);
             try {
                 const storedToken = await getToken();
                 if (storedToken) {
+                    // The interceptor in apiClient automatically adds the token to headers.
                     setToken(storedToken);
-                    // We will not set a mock user here.
-                    // The user will be null until they log in.
+                    
+                    // Fetch user data with the token
+                    const response = await apiClient.get('/auth/me');
+                    
+                    if (response.data && response.data.user) {
+                        setUser(response.data.user);
+                    } else {
+                        // Handle cases where the token is valid but no user data is returned
+                        throw new Error('User data not found in response.');
+                    }
                 }
             } catch (e) {
-                // Handle token loading error
-                console.error("Failed to load token", e);
+                // This catch block will handle errors from getToken, apiClient.get, or the explicit throw.
+                // It's likely the token is invalid or expired.
+                console.error("Session restore failed:", e);
+                await deleteToken(); // Clean up invalid token
+                setToken(null);
+                setUser(null);
             } finally {
                 setLoading(false);
             }
         };
+
         loadUserFromToken();
     }, []);
 

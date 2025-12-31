@@ -85,6 +85,7 @@ export default function DriverHomeScreen() {
       <MapView
         style={StyleSheet.absoluteFill}
         customMapStyle={MAP_STYLE}
+        provider="google"
         initialRegion={{
           latitude: 37.78825,
           longitude: -122.4324,

@@ -6,8 +6,6 @@ import { useNavigation, useRouter } from 'expo-router';
 import { DrawerActions } from '@react-navigation/native';
 import MapView, { Marker } from 'react-native-maps'; // Sin provider forzado
 import { Colors } from '@/constants/theme';
-import { useAuth } from '@/hooks/useAuth';
-import DriverHomeScreen from '@/components/driver/DriverHomeScreen';
 
 // Eliminamos la prop 'drawerNavigation' ya no es necesaria
 function PassengerHomeScreen() {
@@ -119,22 +117,9 @@ function PassengerHomeScreen() {
   );
 }
 
-
 export default function HomeScreen() {
-  const { activeRole } = useAuth();
-  
-  // ELIMINADO: const drawerNavigation = navigation.getParent('MyDrawer');
-  // ELIMINADO: if (!drawerNavigation) return ...
-  // Ya no bloqueamos la renderización.
-
-  if (activeRole === 'driver') {
-    // DriverHomeScreen ya maneja su propia navegación internamente
-    return <DriverHomeScreen />;
-  }
-
   return <PassengerHomeScreen />;
 }
-
 
 // Componente auxiliar
 const FavoriteItem = ({ icon, color, title, subtitle }: any) => (
