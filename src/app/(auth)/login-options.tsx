@@ -1,26 +1,23 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AuthButton from '@/components/ui/AuthButton';
-import SocialAuthButtons from '@/components/ui/SocialAuthButtons';
-import { useAuth } from '@/hooks/useAuth'; // Import useAuth
+import Button from '@/components/ui/Button'; // NUEVO
+import { Colors, Spacing } from '@/constants/theme'; // NUEVO
 
 export default function LoginOptionsScreen() {
   const router = useRouter();
-  const { mockLogin } = useAuth(); // Get mockLogin from useAuth
 
-  const handleFacebookLogin = async () => {
-    if (!mockLogin) {
-        console.error("mockLogin is not available in production");
-        return;
-    }
-    try {
-      // ONLY execute the login.
-      // The state change (user) will automatically trigger
-      // the effect in _layout.tsx that will move us to the correct screen.
-      await mockLogin();
-    } catch (error) {
-      console.error("Error in simulated login:", error);
+  const handleSocialLogin = async (provider: 'google' | 'apple' | 'facebook') => {
+    console.log(`Attempting login with ${provider}`);
+    // En un entorno real, aquí iría la lógica de login social.
+    // Para la demo, el login de Facebook usa el mock.
+    if (provider === 'facebook' && __DEV__ && (global as any).mockLogin) {
+      try {
+        await (global as any).mockLogin();
+        // La navegación la maneja el Root layout
+      } catch (error) {
+        console.error("Error in simulated login:", error);
+      }
     }
   };
 
@@ -34,19 +31,50 @@ export default function LoginOptionsScreen() {
         </View>
 
         <View style={styles.formContainer}>
-          <Text style={styles.title}>¡Registrate a RuDix!</Text>
+          <Text style={styles.title}>¡Bienvenido a RuDix!</Text>
           <Text style={styles.subtitle}>Confort y Seguridad en cada kilómetro</Text>
 
-          <View style={styles.buttonsGap}>
-            <AuthButton
+          <View style={styles.buttonsContainer}>
+            {/* Botón principal refactorizado */}
+            <Button
               title="Entrar con mi número celular"
-              onPress={() => router.push('/auth/phone-input')}
+              variant="primary"
+              onPress={() => router.push('/(auth)/phone-input')}
+              fullWidth
+              gradient
             />
+            
+            <View style={styles.dividerContainer}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>O continúa con</Text>
+              <View style={styles.dividerLine} />
+            </View>
 
-            <SocialAuthButtons
-              onGoogle={() => console.log('Google')}
-              onFacebook={handleFacebookLogin} // Use the new handler
-              onApple={() => console.log('Apple')}
+            {/* Botones sociales refactorizados */}
+            <Button
+              title="Continuar con Google"
+              variant="outline"
+              leftIcon="logo-google"
+              onPress={() => handleSocialLogin('google')}
+              fullWidth
+              style={styles.socialButton}
+              textStyle={styles.socialButtonText}
+            />
+            <Button
+              title="Continuar con Apple"
+              variant="primary"
+              leftIcon="logo-apple"
+              onPress={() => handleSocialLogin('apple')}
+              fullWidth
+              style={{ backgroundColor: Colors.base.black }}
+            />
+             <Button
+              title="Continuar con Facebook"
+              variant="primary"
+              leftIcon="logo-facebook"
+              onPress={() => handleSocialLogin('facebook')}
+              fullWidth
+              style={{ backgroundColor: Colors.social.facebook }}
             />
           </View>
         </View>
@@ -56,21 +84,61 @@ export default function LoginOptionsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  scrollContent: { flexGrow: 1, paddingBottom: 20, alignItems: 'center' },
-  imagePlaceholder: {
-    width: '80%',
-    height: '30%',
-    backgroundColor: '#E0E0E0', // Gris claro
-    borderRadius: 20,
-    marginTop: 20,
-    marginBottom: 20,
-    justifyContent: 'center',
-    alignItems: 'center'
+  container: { flex: 1, backgroundColor: Colors.base.white },
+  scrollContent: { 
+    flexGrow: 1, 
+    padding: Spacing.lg,
+    justifyContent: 'space-between',
   },
-  placeholderText: { color: '#888' },
-  formContainer: { width: '100%', paddingHorizontal: 30, alignItems: 'center' },
-  title: { fontSize: 26, fontWeight: 'bold', color: '#1A1A1A', marginBottom: 5 },
-  subtitle: { fontSize: 14, color: '#888', marginBottom: 30 },
-  buttonsGap: { width: '100%', gap: 15 },
+  imagePlaceholder: {
+    width: '100%',
+    aspectRatio: 1.2,
+    backgroundColor: Colors.grey[100],
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.xl,
+  },
+  placeholderText: { color: Colors.grey[500] },
+  formContainer: { 
+    width: '100%', 
+    alignItems: 'center' 
+  },
+  title: { 
+    fontSize: 26, 
+    fontWeight: 'bold', 
+    color: Colors.light.text, 
+    marginBottom: Spacing.sm 
+  },
+  subtitle: { 
+    fontSize: 14, 
+    color: Colors.light.textSecondary, 
+    marginBottom: Spacing.xl 
+  },
+  buttonsContainer: { 
+    width: '100%', 
+    gap: Spacing.md 
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: Spacing.sm,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: Colors.grey[200],
+  },
+  dividerText: {
+    color: Colors.grey[500],
+    marginHorizontal: Spacing.md,
+  },
+  socialButton: {
+    backgroundColor: Colors.base.white,
+    borderColor: Colors.grey[300],
+    borderWidth: 1,
+  },
+  socialButtonText: {
+    color: Colors.light.text,
+  }
 });

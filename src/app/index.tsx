@@ -20,9 +20,9 @@ export default function Index() {
 
   // 2. Si es Conductor, mandar a su layout (ahora debe ser un Drawer como vimos arriba)
   if (activeRole === 'driver') {
-    return <Redirect href="/driver/home" />;
+    return <Redirect href="/(driver)/(home)" />;
   }
 
   // 3. Por defecto (Pasajero), mandar a los Tabs
-  return <Redirect href="/(drawer)/(tabs)" />;
+  return <Redirect href="/(passenger)/(home)" />;
 }

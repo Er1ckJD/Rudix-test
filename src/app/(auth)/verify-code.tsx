@@ -3,8 +3,8 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/hooks/useAuth';
 import CodeInput from '@/components/ui/CodeInput';
-import AuthButton from '@/components/ui/AuthButton';
-import { Colors } from '@/constants/theme';
+import Button from '@/components/ui/Button'; // NUEVO
+import { Colors, Spacing, Typography } from '@/constants/theme'; // NUEVO
 
 export default function VerifyCodeScreen() {
   const router = useRouter();
@@ -15,7 +15,7 @@ export default function VerifyCodeScreen() {
     if (code.length === 4 && phone) {
       const result = await verifyCode(phone, code);
       if (result.success) {
-        router.replace('/');
+        // El Root layout se encargará de la redirección
       }
     }
   };
@@ -40,11 +40,15 @@ export default function VerifyCodeScreen() {
             </View>
 
             <View style={styles.buttonWrapper}>
-                {/* Puedes poner un onPress vacío si el CodeInput maneja el envío automático */}
-                <AuthButton 
+                <Button 
                     title="Verificar" 
-                    onPress={() => {}} 
-                    loading={loading} 
+                    onPress={() => {
+                        // El botón puede no hacer nada si el onComplete del input ya submite
+                        // O puede forzar el submit si es necesario.
+                    }} 
+                    loading={loading}
+                    fullWidth
+                    gradient
                 />
             </View>
 
@@ -58,7 +62,6 @@ export default function VerifyCodeScreen() {
             </Text>
         </View>
 
-        {/* Espacio inferior vacío (donde iría el auto) */}
         <View style={{ height: 50 }} />
       </ScrollView>
     </SafeAreaView>
@@ -66,17 +69,68 @@ export default function VerifyCodeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  scrollContent: { flexGrow: 1 },
-  header: { paddingHorizontal: 20, paddingTop: 10 },
-  backArrow: { fontSize: 30, color: '#333' },
-  mainContent: { alignItems: 'center', paddingHorizontal: 30, marginTop: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', color: Colors.light.primary, marginBottom: 10, textAlign: 'center' },
-  subtitle: { fontSize: 13, color: '#666', textAlign: 'center', marginBottom: 40 },
-  codeContainer: { marginBottom: 30, width: '100%' },
-  buttonWrapper: { width: '100%', marginBottom: 20 },
-  resendContainer: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingHorizontal: 10, marginBottom: 20 },
-  resendText: { fontWeight: 'bold', fontSize: 12, color: Colors.light.primary },
-  timerText: { color: '#999', fontSize: 12 },
-  privacyText: { fontSize: 10, color: '#999', textAlign: 'center', maxWidth: 200, marginTop: 20 },
+  container: { 
+    flex: 1, 
+    backgroundColor: Colors.base.white 
+  },
+  scrollContent: { 
+    flexGrow: 1 
+  },
+  header: { 
+    paddingHorizontal: Spacing.lg, 
+    paddingTop: Spacing.sm 
+  },
+  backArrow: { 
+    fontSize: Typography.size.xxl, 
+    color: Colors.grey[800] 
+  },
+  mainContent: { 
+    alignItems: 'center', 
+    paddingHorizontal: Spacing.xl, 
+    marginTop: Spacing.lg 
+  },
+  title: { 
+    fontSize: Typography.size.xxl, 
+    fontWeight: Typography.weight.bold, 
+    color: Colors.brand.primary, 
+    marginBottom: Spacing.md, 
+    textAlign: 'center' 
+  },
+  subtitle: { 
+    fontSize: Typography.size.base, 
+    color: Colors.grey[600], 
+    textAlign: 'center', 
+    marginBottom: Spacing.xl 
+  },
+  codeContainer: { 
+    marginBottom: Spacing.xl, 
+    width: '100%' 
+  },
+  buttonWrapper: { 
+    width: '100%', 
+    marginBottom: Spacing.lg 
+  },
+  resendContainer: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    width: '100%', 
+    paddingHorizontal: Spacing.sm, 
+    marginBottom: Spacing.lg 
+  },
+  resendText: { 
+    fontWeight: Typography.weight.bold, 
+    fontSize: Typography.size.sm, 
+    color: Colors.brand.primary 
+  },
+  timerText: { 
+    color: Colors.grey[500], 
+    fontSize: Typography.size.sm 
+  },
+  privacyText: { 
+    fontSize: Typography.size.xs, 
+    color: Colors.grey[500], 
+    textAlign: 'center', 
+    maxWidth: 250, 
+    marginTop: Spacing.lg 
+  },
 });

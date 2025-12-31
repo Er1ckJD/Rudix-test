@@ -2,8 +2,8 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AuthButton from '@/components/ui/AuthButton';
-import { Colors } from '@/constants/theme';
+import Button from '@/components/ui/Button'; // NUEVO
+import { Colors, Spacing, Typography, hexWithOpacity } from '@/constants/theme'; // NUEVO
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -11,8 +11,7 @@ export default function WelcomeScreen() {
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
-      {/* Fondo sólido simulando la imagen oscura */}
-      <View style={styles.backgroundPlaceholder}>
+      <View style={styles.background}>
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.contentContainer}>
             <View style={styles.textContainer}>
@@ -27,9 +26,12 @@ export default function WelcomeScreen() {
             </View>
 
             <View style={styles.buttonContainer}>
-              <AuthButton
+              <Button
                 title="Continuar"
                 onPress={() => router.push('/(onboarding)/security')}
+                variant="primary"
+                gradient
+                fullWidth
               />
             </View>
 
@@ -44,21 +46,59 @@ export default function WelcomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.common.black },
-  backgroundPlaceholder: { flex: 1, backgroundColor: Colors.grey[1500] }, // Gris oscuro simulando foto
-  safeArea: { flex: 1 },
+  container: { 
+    flex: 1, 
+    backgroundColor: Colors.base.black 
+  },
+  background: { 
+    flex: 1, 
+    backgroundColor: Colors.dark.background 
+  },
+  safeArea: { 
+    flex: 1 
+  },
   contentContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    paddingHorizontal: 25,
-    paddingBottom: 40,
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.xl,
   },
-  textContainer: { marginBottom: 30 },
-  indicatorContainer: { flexDirection: 'row', gap: 5, marginBottom: 15 },
-  indicator: { width: 8, height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.3)' },
-  indicatorActive: { width: 20, backgroundColor: Colors.common.white },
-  title: { fontSize: 36, fontWeight: 'bold', color: Colors.common.white, textTransform: 'uppercase' },
-  subtitle: { fontSize: 16, color: Colors.grey[800], marginTop: 5 },
-  buttonContainer: { width: '100%', marginBottom: 20 },
-  footerText: { color: 'rgba(255,255,255,0.5)', fontSize: 10, textAlign: 'center' },
+  textContainer: { 
+    marginBottom: Spacing.xl 
+  },
+  indicatorContainer: { 
+    flexDirection: 'row', 
+    gap: Spacing.sm, 
+    marginBottom: Spacing.md 
+  },
+  indicator: { 
+    width: 8, 
+    height: 8, 
+    borderRadius: 4, 
+    backgroundColor: hexWithOpacity(Colors.base.white, 0.3) 
+  },
+  indicatorActive: { 
+    width: 24, 
+    backgroundColor: Colors.base.white 
+  },
+  title: { 
+    fontSize: Typography.size.xxxl, 
+    fontWeight: Typography.weight.bold, 
+    color: Colors.base.white, 
+    textTransform: 'uppercase' 
+  },
+  subtitle: { 
+    fontSize: Typography.size.md, 
+    color: Colors.grey[400], 
+    marginTop: Spacing.sm 
+  },
+  buttonContainer: { 
+    width: '100%', 
+    marginBottom: Spacing.lg 
+  },
+  footerText: { 
+    color: hexWithOpacity(Colors.base.white, 0.5), 
+    fontSize: Typography.size.xs, 
+    textAlign: 'center' 
+  },
 });
