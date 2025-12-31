@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import MapView, { Marker } from 'react-native-maps'; //
+import { useDrawer } from '@/hooks/useDrawer';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter, useNavigation } from 'expo-router';
-import { Colors } from '@/constants/theme';
+import { useRouter } from 'expo-router';
+import { Colors, Shadows } from '@/constants/theme';
 import GoOnlineButton from '@/components/driver/GoOnlineButton';
 import EarningsHeader from '@/components/driver/EarningsHeader';
 import RideRequestModal from '@/components/driver/RideRequestModal';
 import { useAuth } from '@/hooks/useAuth';
-import { DrawerActions } from '@react-navigation/native';
 import TripActionSheet, { TripStatus } from './TripActionSheet';
 import TripSummaryModal from './TripSummaryModal';
 
@@ -27,7 +27,7 @@ const MAP_STYLE = [
 
 export default function DriverHomeScreen() {
   const router = useRouter();
-  const navigation = useNavigation();
+  const { openDrawer } = useDrawer();
   const { user } = useAuth();
   const [isOnline, setIsOnline] = useState(false);
   const [requestVisible, setRequestVisible] = useState(false);
@@ -85,20 +85,18 @@ export default function DriverHomeScreen() {
       <MapView
         style={StyleSheet.absoluteFill}
         customMapStyle={MAP_STYLE}
-        provider="google"
         initialRegion={{
           latitude: 37.78825,
           longitude: -122.4324,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
-        // provider="google" <--- ELIMINADO para usar el mapa nativo sin API Key
       >
         {isOnline && (
           <Marker coordinate={{ latitude: 37.78825, longitude: -122.4324 }}>
             <View style={styles.carMarker}>
               <View style={styles.carPulse} />
-              <Ionicons name="car" size={24} color={Colors.common.white} />
+              <Ionicons name="car" size={24} color={Colors.base.white} />
             </View>
           </Marker>
         )}
@@ -106,12 +104,12 @@ export default function DriverHomeScreen() {
 
       <EarningsHeader />
 
-      <TouchableOpacity style={styles.profileBtn} onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
+      <TouchableOpacity style={styles.profileBtn} onPress={openDrawer}>
         <ImagePlaceholder initials={getInitials()} />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.settingsBtn} onPress={() => router.push('/driver/settings')}>
-        <Ionicons name="options" size={24} color={Colors.common.black} />
+      <TouchableOpacity style={styles.settingsBtn} onPress={() => router.push('/(driver)/settings')}>
+        <Ionicons name="options" size={24} color={Colors.base.black} />
       </TouchableOpacity>
 
       <View style={styles.bottomPanel}>
@@ -128,7 +126,7 @@ export default function DriverHomeScreen() {
 
           <View style={styles.optionsRow}>
               <TouchableOpacity style={styles.optionItem}>
-                  <MaterialCommunityIcons name="lightning-bolt" size={24} color={isOnline ? Colors.common.gold : Colors.grey[800]} />
+                  <MaterialCommunityIcons name="lightning-bolt" size={24} color={isOnline ? Colors.brand.secondary : Colors.grey[800]} />
                   <Text style={styles.optionLabel}>Rayo</Text>
               </TouchableOpacity>
               <View style={{width: 80}} />
@@ -160,7 +158,7 @@ export default function DriverHomeScreen() {
       {!currentTripStatus && (
           <TouchableOpacity 
             onPress={simulateAcceptRide} 
-            style={{position: 'absolute', top: 100, right: 20, backgroundColor: 'white', padding: 10}}>
+            style={{position: 'absolute', top: 100, right: 20, backgroundColor: Colors.base.white, padding: 10}}>
             <Text>Simular Aceptar Viaje</Text>
           </TouchableOpacity>
       )}
@@ -184,26 +182,25 @@ const ImagePlaceholder = ({ initials }: { initials: string }) => (
 );
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.common.white },
-  carMarker: { width: 50, height: 50, borderRadius: 25, backgroundColor: Colors.light.primary, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: Colors.common.white, elevation: 5 },
-  carPulse: { position: 'absolute', width: 70, height: 70, borderRadius: 35, backgroundColor: Colors.light.primary, opacity: 0.2 },
-  profileBtn: { position: 'absolute', top: 60, left: 20, elevation: 5, zIndex: 10 },
-  settingsBtn: { position: 'absolute', top: 60, right: 20, width: 45, height: 45, borderRadius: 25, backgroundColor: Colors.common.white, alignItems: 'center', justifyContent: 'center', elevation: 5, zIndex: 10 },
-  avatar: { width: 45, height: 45, borderRadius: 25, backgroundColor: Colors.grey[1400], alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: Colors.common.white },
-  avatarText: { color: Colors.common.white, fontWeight: 'bold' },
+  container: { flex: 1, backgroundColor: Colors.base.white },
+  carMarker: { width: 50, height: 50, borderRadius: 25, backgroundColor: Colors.brand.primary, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: Colors.base.white, elevation: 5 },
+  carPulse: { position: 'absolute', width: 70, height: 70, borderRadius: 35, backgroundColor: Colors.brand.primary, opacity: 0.2 },
+  profileBtn: { position: 'absolute', top: 60, left: 20, zIndex: 10, ...Shadows.lg },
+  settingsBtn: { position: 'absolute', top: 60, right: 20, width: 45, height: 45, borderRadius: 25, backgroundColor: Colors.base.white, alignItems: 'center', justifyContent: 'center', zIndex: 10, ...Shadows.lg },
+  avatar: { width: 45, height: 45, borderRadius: 25, backgroundColor: Colors.grey[800], alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: Colors.base.white },
+  avatarText: { color: Colors.base.white, fontWeight: 'bold' },
   bottomPanel: {
     position: 'absolute',
     bottom: 0,
     width: '100%',
-    backgroundColor: Colors.common.white,
+    backgroundColor: Colors.base.white,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingHorizontal: 20,
     paddingBottom: 30,
     paddingTop: 50,
     alignItems: 'center',
-    elevation: 20,
-    shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10
+    ...Shadows.xl
   },
   goButtonContainer: {
     position: 'absolute',
@@ -215,11 +212,11 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: Colors.grey[1400],
+    color: Colors.grey[800],
     marginTop: 10
   },
-  statusSubtext: { fontSize: 12, color: Colors.grey[1000], marginBottom: 20 },
+  statusSubtext: { fontSize: 12, color: Colors.grey[600], marginBottom: 20 },
   optionsRow: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingHorizontal: 30, marginTop: 10 },
   optionItem: { alignItems: 'center' },
-  optionLabel: { fontSize: 10, color: Colors.grey[1100], marginTop: 4 },
+  optionLabel: { fontSize: 10, color: Colors.grey[600], marginTop: 4 },
 });

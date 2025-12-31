@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Ale
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useRouter, Stack, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/theme';
+import { Colors, Spacing, Typography, Shadows } from '@/constants/theme';
 import { usePreventRemove } from '@react-navigation/native';
 
 type TripStatus = 'searching' | 'accepted' | 'arrived' | 'in_progress';
@@ -35,12 +35,11 @@ export default function TripTrackingScreen() {
 
   // SIMULACIÓN DE ESTADOS DEL VIAJE (Backend Mock)
   useEffect(() => {
-    const timer1 = setTimeout(() => setStatus('accepted'), 4000); // 4s: Conductor acepta
-    const timer2 = setTimeout(() => setStatus('arrived'), 10000); // 10s: Conductor llega
-    const timer3 = setTimeout(() => setStatus('in_progress'), 15000); // 15s: Inicia viaje
+    const timer1 = setTimeout(() => setStatus('accepted'), 4000);
+    const timer2 = setTimeout(() => setStatus('arrived'), 10000);
+    const timer3 = setTimeout(() => setStatus('in_progress'), 15000);
     const timer4 = setTimeout(() => {
-        // 25s: Fin del viaje -> Ir a calificar
-        router.replace('/ride/rating'); 
+        router.replace('/(passenger)/ride/rating'); 
     }, 25000);
 
     return () => {
@@ -52,7 +51,7 @@ export default function TripTrackingScreen() {
   const handleCancel = () => {
     Alert.alert("Cancelar Viaje", "¿Seguro que deseas cancelar? Se aplicará una tarifa de cancelación.", [
         { text: "No", style: "cancel" },
-        { text: "Sí, cancelar", style: "destructive", onPress: () => router.replace('/') }
+        { text: "Sí, cancelar", style: "destructive", onPress: () => router.replace('/(passenger)/(home)') }
     ]);
   };
 
@@ -60,10 +59,8 @@ export default function TripTrackingScreen() {
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* MAPA DE FONDO */}
       <MapView
         style={StyleSheet.absoluteFill}
-        provider="google"
         initialRegion={{
           latitude: 19.4326, longitude: -99.1332,
           latitudeDelta: 0.01, longitudeDelta: 0.01,
@@ -71,35 +68,31 @@ export default function TripTrackingScreen() {
       >
         {status !== 'searching' && (
             <>
-                {/* Auto del Conductor (Animado en una app real) */}
                 <Marker coordinate={{ latitude: 19.4340, longitude: -99.1350 }}>
                     <View style={styles.carMarker}>
-                        <Ionicons name="car-sport" size={20} color="#fff" />
+                        <Ionicons name="car-sport" size={20} color={Colors.base.white} />
                     </View>
                 </Marker>
                 
-                {/* Ruta (Polyline) */}
                 <Polyline 
                     coordinates={[
                         { latitude: 19.4340, longitude: -99.1350 },
                         { latitude: 19.4326, longitude: -99.1332 }
                     ]}
-                    strokeColor={Colors.light.primary}
+                    strokeColor={Colors.brand.primary}
                     strokeWidth={4}
                 />
             </>
         )}
         
-        {/* Mi Ubicación */}
         <Marker coordinate={{ latitude: 19.4326, longitude: -99.1332 }}>
             <View style={styles.myLocationDot} />
         </Marker>
       </MapView>
 
-      {/* HEADER FLOTANTE (Estado) */}
       <SafeAreaView style={styles.topContainer}>
         <View style={styles.statusPill}>
-            {status === 'searching' && <ActivityIndicator size="small" color="#fff" />}
+            {status === 'searching' && <ActivityIndicator size="small" color={Colors.base.white} />}
             <Text style={styles.statusText}>
                 {status === 'searching' && ' Buscando conductor cercano...'}
                 {status === 'accepted' && ' Conductor en camino • 4 min'}
@@ -109,7 +102,6 @@ export default function TripTrackingScreen() {
         </View>
       </SafeAreaView>
 
-      {/* PANEL INFERIOR */}
       <View style={styles.bottomSheet}>
         {status === 'searching' ? (
              <View style={styles.searchingContainer}>
@@ -120,14 +112,13 @@ export default function TripTrackingScreen() {
              </View>
         ) : (
             <>
-                {/* Información del Conductor */}
                 <View style={styles.driverRow}>
                     <View>
                         <Text style={styles.plateText}>MX • 723-AZW</Text>
                         <Text style={styles.carModel}>Nissan Versa • Gris</Text>
                         <Text style={styles.driverName}>Carlos Mendoza</Text>
                         <View style={styles.ratingBox}>
-                            <Ionicons name="star" size={12} color={Colors.common.gold} />
+                            <Ionicons name="star" size={12} color={Colors.semantic.warning} />
                             <Text style={styles.ratingText}>4.9</Text>
                         </View>
                     </View>
@@ -139,10 +130,9 @@ export default function TripTrackingScreen() {
 
                 <View style={styles.divider} />
 
-                {/* Acciones */}
                 <View style={styles.actionsRow}>
                     <TouchableOpacity style={styles.actionBtn}>
-                        <Ionicons name="call-outline" size={24} color={Colors.grey[1400]} />
+                        <Ionicons name="call-outline" size={24} color={Colors.grey[800]} />
                         <Text style={styles.actionLabel}>Llamar</Text>
                     </TouchableOpacity>
                     
@@ -150,18 +140,18 @@ export default function TripTrackingScreen() {
                         style={styles.actionBtn}
                         onPress={() => router.push({ pathname: '/chat/[id]', params: { id: 'trip_123' } })}
                     >
-                        <Ionicons name="chatbubble-outline" size={24} color={Colors.grey[1400]} />
+                        <Ionicons name="chatbubble-outline" size={24} color={Colors.grey[800]} />
                         <Text style={styles.actionLabel}>Chat</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.actionBtn}>
-                        <Ionicons name="share-social-outline" size={24} color={Colors.grey[1400]} />
+                        <Ionicons name="share-social-outline" size={24} color={Colors.grey[800]} />
                         <Text style={styles.actionLabel}>Compartir</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity style={[styles.actionBtn, { opacity: 0.5 }]} onPress={handleCancel}>
-                        <Ionicons name="close-circle-outline" size={24} color={Colors.common.error} />
-                        <Text style={[styles.actionLabel, { color: Colors.common.error }]}>Cancelar</Text>
+                        <Ionicons name="close-circle-outline" size={24} color={Colors.semantic.error} />
+                        <Text style={[styles.actionLabel, { color: Colors.semantic.error }]}>Cancelar</Text>
                     </TouchableOpacity>
                 </View>
             </>
@@ -172,39 +162,33 @@ export default function TripTrackingScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#eee' },
+  container: { flex: 1, backgroundColor: Colors.grey[100] },
   
-  // Mapa
-  carMarker: { backgroundColor: Colors.light.primary, padding: 8, borderRadius: 20, borderWidth: 2, borderColor: '#fff' },
-  myLocationDot: { width: 16, height: 16, borderRadius: 8, backgroundColor: Colors.common.appleBlue, borderWidth: 3, borderColor: '#fff', shadowColor: '#000', shadowOpacity: 0.2, elevation: 5 },
+  carMarker: { backgroundColor: Colors.brand.primary, padding: Spacing.sm, borderRadius: 20, borderWidth: 2, borderColor: Colors.base.white },
+  myLocationDot: { width: 16, height: 16, borderRadius: 8, backgroundColor: Colors.social.apple, borderWidth: 3, borderColor: Colors.base.white, ...Shadows.md },
 
-  // Header Estado
-  topContainer: { alignItems: 'center', marginTop: 10 },
-  statusPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.grey[1400], paddingHorizontal: 20, paddingVertical: 12, borderRadius: 30, elevation: 5, shadowColor: '#000', shadowOpacity: 0.3 },
-  statusText: { color: '#fff', fontWeight: 'bold', marginLeft: 10 },
+  topContainer: { alignItems: 'center', marginTop: Spacing.sm },
+  statusPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.grey[800], paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm, borderRadius: 30, ...Shadows.lg },
+  statusText: { color: Colors.base.white, fontWeight: Typography.weight.bold, marginLeft: Spacing.sm },
 
-  // Panel Inferior
-  bottomSheet: { position: 'absolute', bottom: 0, width: '100%', backgroundColor: '#fff', borderTopLeftRadius: 25, borderTopRightRadius: 25, padding: 25, elevation: 20, shadowColor: '#000', shadowOffset: {width:0, height:-5}, shadowOpacity: 0.1, shadowRadius: 10 },
+  bottomSheet: { position: 'absolute', bottom: 0, width: '100%', backgroundColor: Colors.base.white, borderTopLeftRadius: 25, borderTopRightRadius: 25, padding: Spacing.lg, ...Shadows.xl },
   
-  // Estado Buscando
-  searchingContainer: { alignItems: 'center', paddingVertical: 20 },
-  searchingTitle: { fontSize: 18, fontWeight: 'bold', color: Colors.grey[1400], marginBottom: 20 },
-  cancelButton: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: 20, backgroundColor: Colors.grey[200] },
-  cancelText: { color: Colors.grey[1400], fontWeight: '600' },
+  searchingContainer: { alignItems: 'center', paddingVertical: Spacing.lg },
+  searchingTitle: { fontSize: Typography.size.lg, fontWeight: Typography.weight.bold, color: Colors.light.text, marginBottom: Spacing.lg },
+  cancelButton: { paddingVertical: Spacing.sm, paddingHorizontal: Spacing.lg, borderRadius: 20, backgroundColor: Colors.grey[200] },
+  cancelText: { color: Colors.light.text, fontWeight: Typography.weight.semibold },
 
-  // Estado Aceptado (Driver Info)
-  driverRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  plateText: { fontSize: 18, fontWeight: '900', color: Colors.grey[1400], letterSpacing: 1 },
-  carModel: { fontSize: 14, color: Colors.grey[900], marginVertical: 2 },
-  driverName: { fontSize: 14, fontWeight: '600', color: Colors.grey[1200] },
-  ratingBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.grey[100], alignSelf: 'flex-start', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10, marginTop: 4 },
-  ratingText: { fontSize: 10, fontWeight: 'bold', marginLeft: 3 },
+  driverRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.lg },
+  plateText: { fontSize: Typography.size.lg, fontWeight: Typography.weight.black, color: Colors.light.text, letterSpacing: 1 },
+  carModel: { fontSize: Typography.size.base, color: Colors.grey[600], marginVertical: 2 },
+  driverName: { fontSize: Typography.size.base, fontWeight: Typography.weight.semibold, color: Colors.grey[700] },
+  ratingBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.grey[100], alignSelf: 'flex-start', paddingHorizontal: Spacing.sm, paddingVertical: Spacing.xs, borderRadius: 10, marginTop: Spacing.xs },
+  ratingText: { fontSize: Typography.size.xs, fontWeight: Typography.weight.bold, marginLeft: Spacing.xs },
   driverAvatar: { width: 70, height: 70, borderRadius: 35, borderWidth: 3, borderColor: Colors.grey[200] },
   
-  divider: { height: 1, backgroundColor: Colors.grey[200], marginBottom: 20 },
+  divider: { height: 1, backgroundColor: Colors.grey[200], marginBottom: Spacing.lg },
 
-  // Botones de acción
   actionsRow: { flexDirection: 'row', justifyContent: 'space-between' },
   actionBtn: { alignItems: 'center', width: 60 },
-  actionLabel: { fontSize: 10, color: Colors.grey[900], marginTop: 5 }
+  actionLabel: { fontSize: Typography.size.xs, color: Colors.grey[700], marginTop: Spacing.xs }
 });
