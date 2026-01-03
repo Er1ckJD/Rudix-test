@@ -4,6 +4,7 @@ import { useRouter, Stack } from 'expo-router';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '@/constants/theme';
+import { useDrawer } from '@/hooks/useDrawer';
 import { LinearGradient } from 'expo-linear-gradient';
 import SafetyModal from '@/components/safety/SafetyModal';
 
@@ -11,6 +12,7 @@ type ModalType = 'before-ride' | 'during-ride' | 'emergency' | 'end-ride' | 'acc
 
 export default function ImprovedSecurityScreen() {
   const router = useRouter();
+  const { openDrawer } = useDrawer();
   const [activeModal, setActiveModal] = useState<ModalType>(null);
 
   const handleCall911 = () => {
@@ -42,7 +44,7 @@ export default function ImprovedSecurityScreen() {
           </View>
           <TouchableOpacity
             style={styles.menuButton}
-            onPress={() => router.back()}
+            onPress={openDrawer}
           >
             <Ionicons name="menu" size={28} color={Colors.base.white} />
           </TouchableOpacity>

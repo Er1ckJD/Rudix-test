@@ -2,23 +2,25 @@ import { DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navi
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/theme';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Colors, Spacing, Typography } from '@/constants/theme';
+import Constants from 'expo-constants';
 
 export default function CustomDrawerContent(props: any) {
-  const { user, logout, activeRole } = useAuth();
+  const { user, logout, activeRole, switchActiveRole, roles } = useAuth();
   const router = useRouter();
 
   const handleLogout = () => {
     logout();
-    router.replace('/auth');
+    router.replace('/(auth)');
   };
+
+  const canSwitchRole = roles.includes('user') && roles.includes('driver');
 
   return (
     <View style={{ flex: 1 }}>
       <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: 0 }}>
         
-        {/* Header del Menú (Perfil) */}
         <View style={styles.header}>
             <Image 
                 source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }} 
@@ -26,52 +28,146 @@ export default function CustomDrawerContent(props: any) {
             />
             <View>
                 <Text style={styles.name}>{user?.nombres || 'Usuario'} {user?.apellidos}</Text>
-                <Text style={styles.roleBadge}>
-                    {activeRole === 'driver' ? 'Conductor' : 'Pasajero'}
-                </Text>
+                <View style={styles.roleBadge}>
+                    <Text style={styles.roleText}>
+                        {activeRole === 'driver' ? 'Conductor' : 'Pasajero'}
+                    </Text>
+                </View>
             </View>
         </View>
 
-        {/* --- OPCIONES DEL MENÚ --- */}
-        
-        {/* Aquí renderizamos las pantallas definidas en el Drawer.Screen */}
-        <View style={{ flex: 1, paddingTop: 10 }}>
+        <View style={{ flex: 1, paddingTop: Spacing.md }}>
             <DrawerItemList {...props} />
         </View>
 
-        {/* Opciones Extra Personalizadas si faltan en el Drawer.Screen */}
         {activeRole === 'driver' && (
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Herramientas</Text>
                 <DrawerItem 
-                    label="Ganancias Semanales"
-                    icon={({color}) => <Ionicons name="stats-chart" size={22} color={color} />}
+                    label="Ganancias"
+                    labelStyle={styles.drawerLabel}
+                    icon={({color, size}) => <Ionicons name="wallet-outline" size={size} color={color} />}
                     onPress={() => router.push('/(driver)/earnings')}
                 />
             </View>
         )}
 
+        {canSwitchRole && (
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Cambiar de rol</Text>
+                <TouchableOpacity 
+                    style={styles.roleSwitcher} 
+                    onPress={() => switchActiveRole(activeRole === 'driver' ? 'user' : 'driver')}
+                >
+                    <MaterialCommunityIcons name="account-switch-outline" size={24} color={Colors.brand.primary} />
+                    <Text style={styles.roleSwitcherText}>
+                        Cambiar a modo {activeRole === 'driver' ? 'Pasajero' : 'Conductor'}
+                    </Text>
+                </TouchableOpacity>
+            </View>
+        )}
+
+
       </DrawerContentScrollView>
 
-      {/* Footer (Cerrar Sesión) */}
       <View style={styles.footer}>
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={24} color="#FF3B30" />
+            <Ionicons name="log-out-outline" size={24} color={Colors.semantic.error} />
             <Text style={styles.logoutText}>Cerrar Sesión</Text>
         </TouchableOpacity>
+        <Text style={styles.versionText}>
+            v{Constants.expoConfig?.version}
+        </Text>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-    header: { padding: 20, backgroundColor: Colors.light.primary, paddingTop: 60, flexDirection: 'row', alignItems: 'center', gap: 15 },
-    avatar: { width: 60, height: 60, borderRadius: 30, borderWidth: 2, borderColor: '#fff' },
-    name: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-    roleBadge: { color: '#eee', fontSize: 12, marginTop: 2, textTransform: 'uppercase' },
-    section: { marginTop: 20, borderTopWidth: 1, borderTopColor: '#f0f0f0', paddingTop: 10 },
-    sectionTitle: { marginLeft: 20, marginBottom: 5, fontSize: 12, color: '#999', fontWeight: 'bold' },
-    footer: { padding: 20, borderTopWidth: 1, borderTopColor: '#f0f0f0' },
-    logoutBtn: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    logoutText: { color: '#FF3B30', fontSize: 16, fontWeight: '500' }
+    header: { 
+        padding: Spacing.lg, 
+        backgroundColor: Colors.brand.primary, 
+        paddingTop: Spacing.xxxl, 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        gap: Spacing.md 
+    },
+    avatar: { 
+        width: 60, 
+        height: 60, 
+        borderRadius: 30, 
+        borderWidth: 2, 
+        borderColor: Colors.base.white 
+    },
+    name: { 
+        color: Colors.base.white, 
+        fontSize: Typography.size.lg, 
+        fontWeight: Typography.weight.bold 
+    },
+    roleBadge: { 
+        backgroundColor: 'rgba(255,255,255,0.2)', 
+        paddingHorizontal: Spacing.sm,
+        paddingVertical: Spacing.xs,
+        borderRadius: 4,
+        alignSelf: 'flex-start',
+        marginTop: Spacing.sm
+    },
+    roleText: {
+        color: Colors.base.white, 
+        fontSize: Typography.size.xs, 
+        fontWeight: Typography.weight.semibold
+    },
+    drawerLabel: {
+        fontSize: Typography.size.base,
+        fontWeight: Typography.weight.medium
+    },
+    section: { 
+        marginTop: Spacing.md, 
+        borderTopWidth: 1, 
+        borderTopColor: Colors.grey[200], 
+        paddingTop: Spacing.md 
+    },
+    sectionTitle: { 
+        marginLeft: Spacing.lg, 
+        marginBottom: Spacing.sm, 
+        fontSize: Typography.size.sm, 
+        color: Colors.grey[600], 
+        fontWeight: Typography.weight.bold 
+    },
+    roleSwitcher: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: Spacing.lg,
+        paddingVertical: Spacing.md,
+        gap: Spacing.md,
+        backgroundColor: Colors.brand.primary + '15',
+        marginHorizontal: Spacing.md,
+        borderRadius: BorderRadius.md,
+    },
+    roleSwitcherText: {
+        fontSize: Typography.size.base,
+        fontWeight: Typography.weight.semibold,
+        color: Colors.brand.primary,
+    },
+    footer: { 
+        padding: Spacing.lg, 
+        borderTopWidth: 1, 
+        borderTopColor: Colors.grey[200] 
+    },
+    logoutBtn: { 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        gap: Spacing.md,
+        paddingVertical: Spacing.sm,
+    },
+    logoutText: { 
+        color: Colors.semantic.error, 
+        fontSize: Typography.size.base, 
+        fontWeight: Typography.weight.semibold
+    },
+    versionText: {
+        textAlign: 'center',
+        color: Colors.grey[500],
+        fontSize: Typography.size.xs,
+        marginTop: Spacing.md,
+    }
 });

@@ -1,112 +1,263 @@
+// src/app/(driver)/settings/index.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Switch,
+  Alert,
+} from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  Colors,
+  Spacing,
+  Typography,
+  BorderRadius,
+  Shadows,
+} from '@/constants/theme';
+import { useAuth } from '@/hooks/useAuth';
+import ListItem from '@/components/ui/ListItem'; // Import the new component
 
 export default function DriverSettingsScreen() {
   const router = useRouter();
-  const colorScheme = useColorScheme();
+  const { logout } = useAuth();
   const [navApp, setNavApp] = useState<'waze' | 'google'>('google');
   const [sound, setSound] = useState(true);
   const [nightMode, setNightMode] = useState(false);
 
-  const SettingItem = ({ icon, label, onPress, value }: any) => (
-    <TouchableOpacity style={styles.item} onPress={onPress}>
-        <View style={styles.iconBox}>
-            <Ionicons name={icon} size={20} color="#555" />
-        </View>
-        <Text style={styles.itemLabel}>{label}</Text>
-        {value ? (
-            <Text style={styles.itemValue}>{value}</Text>
-        ) : (
-            <Ionicons name="chevron-forward" size={20} color="#ccc" />
-        )}
-    </TouchableOpacity>
-  );
+  const handleLogout = () => {
+    Alert.alert(
+      'Cerrar Sesión',
+      '¿Estás seguro de que deseas cerrar sesión?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Cerrar Sesión',
+          style: 'destructive',
+          onPress: async () => {
+            await logout();
+            router.replace('/(auth)');
+          },
+        },
+      ],
+    );
+  };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colorScheme === 'dark' ? Colors.dark.background : '#f5f5f5' }]}>
-      <Stack.Screen 
-        options={{ 
-          title: 'Configuración de Conductor', 
+    <SafeAreaView style={styles.container}>
+      <Stack.Screen
+        options={{
+          title: 'Configuración',
+          headerBackTitle: 'Atrás',
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: colorScheme === 'dark' ? Colors.dark.background : '#f5f5f5' },
-          headerTintColor: colorScheme === 'dark' ? Colors.dark.text : Colors.light.text,
-          headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 10 }}>
-              <Ionicons name="arrow-back" size={24} color={colorScheme === 'dark' ? Colors.dark.text : Colors.light.text} />
-            </TouchableOpacity>
-          )
-        }} 
+          headerStyle: { backgroundColor: Colors.light.surface },
+          headerTintColor: Colors.light.text,
+          headerTitleStyle: {
+            fontSize: Typography.size.lg,
+            fontWeight: Typography.weight.semibold,
+          },
+        }}
       />
-
-      <Text style={styles.sectionHeader}>Navegación</Text>
-      <View style={styles.section}>
-        <TouchableOpacity style={styles.radioItem} onPress={() => setNavApp('google')}>
-            <Ionicons name="map" size={24} color={navApp === 'google' ? Colors.light.primary : '#ccc'} />
-            <Text style={styles.radioLabel}>Google Maps</Text>
-            {navApp === 'google' && <Ionicons name="checkmark" size={24} color={Colors.light.primary} />}
-        </TouchableOpacity>
-        <View style={styles.divider} />
-        <TouchableOpacity style={styles.radioItem} onPress={() => setNavApp('waze')}>
-            <Ionicons name="navigate" size={24} color={navApp === 'waze' ? Colors.light.primary : '#ccc'} />
-            <Text style={styles.radioLabel}>Waze</Text>
-            {navApp === 'waze' && <Ionicons name="checkmark" size={24} color={Colors.light.primary} />}
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.sectionHeader}>Preferencias de la App</Text>
-      <View style={styles.section}>
-        <View style={styles.switchItem}>
-            <Text style={styles.itemLabel}>Sonidos de alerta</Text>
-            <Switch 
-                value={sound} onValueChange={setSound} 
-                trackColor={{true: Colors.light.primary}} 
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>Navegación</Text>
+          <View style={styles.card}>
+            <ListItem
+              isFirst
+              icon="map-outline"
+              title="Google Maps"
+              onPress={() => setNavApp('google')}
+              rightElement={
+                navApp === 'google' ? (
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={24}
+                    color={Colors.brand.primary}
+                  />
+                ) : undefined
+              }
             />
-        </View>
-         <View style={styles.divider} />
-         <View style={styles.switchItem}>
-            <Text style={styles.itemLabel}>Modo Nocturno (Mapa)</Text>
-            <Switch 
-                value={nightMode} onValueChange={setNightMode} 
-                trackColor={{true: Colors.light.primary}} 
+            <ListItem
+              isLast
+              icon="logo-waze"
+              title="Waze"
+              onPress={() => setNavApp('waze')}
+              rightElement={
+                navApp === 'waze' ? (
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={24}
+                    color={Colors.brand.primary}
+                  />
+                ) : undefined
+              }
             />
+          </View>
         </View>
-      </View>
 
-      <Text style={styles.sectionHeader}>Cuenta</Text>
-      <View style={styles.section}>
-        <SettingItem icon="car-sport-outline" label="Gestionar Vehículos" onPress={() => {}} value="Nissan Versa" />
-        <View style={styles.divider} />
-        <SettingItem icon="document-text-outline" label="Documentos" onPress={() => {}} />
-        <View style={styles.divider} />
-        <SettingItem icon="person-outline" label="Editar Perfil" onPress={() => {}} />
-      </View>
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>Preferencias de la App</Text>
+          <View style={styles.card}>
+            <ListItem
+              isFirst
+              icon="volume-medium-outline"
+              title="Sonidos de alerta"
+              rightElement={
+                <Switch
+                  value={sound}
+                  onValueChange={setSound}
+                  trackColor={{
+                    false: Colors.grey[300],
+                    true: Colors.brand.primary,
+                  }}
+                  thumbColor={Colors.base.white}
+                />
+              }
+            />
+            <ListItem
+              isLast
+              icon="moon-outline"
+              title="Modo Nocturno (Mapa)"
+              rightElement={
+                <Switch
+                  value={nightMode}
+                  onValueChange={setNightMode}
+                  trackColor={{
+                    false: Colors.grey[300],
+                    true: Colors.brand.primary,
+                  }}
+                  thumbColor={Colors.base.white}
+                />
+              }
+            />
+          </View>
+        </View>
 
-      <TouchableOpacity style={styles.logoutBtn} onPress={() => router.replace('/')}>
-        <Text style={styles.logoutText}>Cerrar Sesión</Text>
-      </TouchableOpacity>
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>Cuenta</Text>
+          <View style={styles.card}>
+            <ListItem
+              isFirst
+              icon="car-sport-outline"
+              title="Gestionar Vehículos"
+              onPress={() => {
+                /* Implementar navegación */
+              }}
+              rightElement={
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={styles.itemValue}>Nissan Versa</Text>
+                  <Ionicons
+                    name="chevron-forward"
+                    size={20}
+                    color={Colors.grey[400]}
+                  />
+                </View>
+              }
+            />
+            <ListItem
+              icon="document-text-outline"
+              title="Documentos"
+              onPress={() => {
+                /* Implementar navegación */
+              }}
+              rightElement={
+                <Ionicons
+                  name="chevron-forward"
+                  size={20}
+                  color={Colors.grey[400]}
+                />
+              }
+            />
+            <ListItem
+              isLast
+              icon="person-outline"
+              title="Editar Perfil"
+              onPress={() => {
+                /* Implementar navegación */
+              }}
+              rightElement={
+                <Ionicons
+                  name="chevron-forward"
+                  size={20}
+                  color={Colors.grey[400]}
+                />
+              }
+            />
+          </View>
+        </View>
 
-      <Text style={styles.version}>Versión 1.0.5 (Build 2025)</Text>
-    </ScrollView>
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+          <Ionicons
+            name="log-out-outline"
+            size={22}
+            color={Colors.semantic.error}
+          />
+          <Text style={styles.logoutText}>Cerrar Sesión</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.version}>Versión 1.0.5 (Build 2025)</Text>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  sectionHeader: { fontSize: 13, fontWeight: 'bold', color: '#888', marginBottom: 10, marginTop: 10, textTransform: 'uppercase' },
-  section: { backgroundColor: '#fff', borderRadius: 12, overflow: 'hidden', marginBottom: 10 },
-  item: { flexDirection: 'row', alignItems: 'center', padding: 15 },
-  iconBox: { width: 30, alignItems: 'center', marginRight: 10 },
-  itemLabel: { flex: 1, fontSize: 16, color: '#333' },
-  itemValue: { fontSize: 14, color: '#888', marginRight: 5 },
-  switchItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 15 },
-  radioItem: { flexDirection: 'row', alignItems: 'center', padding: 15 },
-  radioLabel: { flex: 1, marginLeft: 15, fontSize: 16 },
-  divider: { height: 1, backgroundColor: '#f0f0f0', marginLeft: 50 },
-  logoutBtn: { marginTop: 30, padding: 15, alignItems: 'center', backgroundColor: '#fff', borderRadius: 12, borderWidth: 1, borderColor: '#ffcccc' },
-  logoutText: { color: '#d32f2f', fontWeight: 'bold' },
-  version: { textAlign: 'center', color: '#999', fontSize: 12, marginTop: 20, marginBottom: 40 },
+  container: {
+    flex: 1,
+    backgroundColor: Colors.light.surface,
+  },
+  scrollContainer: {
+    padding: Spacing.lg,
+  },
+  sectionHeader: {
+    fontSize: Typography.size.sm,
+    fontWeight: Typography.weight.bold,
+    color: Colors.light.textSecondary,
+    marginBottom: Spacing.sm,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  section: {
+    marginBottom: Spacing.lg,
+  },
+  card: {
+    backgroundColor: Colors.base.white,
+    borderRadius: BorderRadius.md,
+    ...Shadows.sm,
+    overflow: 'hidden', // Ensures the list item corners are rounded
+  },
+  itemValue: {
+    fontSize: Typography.size.base,
+    color: Colors.light.textSecondary,
+    marginRight: Spacing.xs,
+  },
+  logoutBtn: {
+    marginTop: Spacing.lg,
+    padding: Spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.base.white,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.semantic.error,
+    ...Shadows.sm,
+    gap: Spacing.sm,
+  },
+  logoutText: {
+    color: Colors.semantic.error,
+    fontWeight: Typography.weight.bold,
+    fontSize: Typography.size.base,
+  },
+  version: {
+    textAlign: 'center',
+    color: Colors.light.textSecondary,
+    fontSize: Typography.size.sm,
+    marginTop: Spacing.xl,
+    marginBottom: Spacing.lg,
+  },
 });

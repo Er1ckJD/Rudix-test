@@ -34,6 +34,7 @@ interface SendOtpResponse {
 interface AuthContextType {
     user: User | null;
     token: string | null;
+    roles: UserRole[];
     activeRole: UserRole;
     loading: boolean;
     error: string | null;
@@ -230,6 +231,7 @@ setError(errorMessage);
     const value = {
         user,
         token,
+        roles: user?.roles || [],
         activeRole,
         loading,
         error,

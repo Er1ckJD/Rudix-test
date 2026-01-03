@@ -1,113 +1,235 @@
+// src/app/(driver)/support/index.tsx
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  TextInput,
+} from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  Colors,
+  Spacing,
+  Typography,
+  BorderRadius,
+  Shadows,
+} from '@/constants/theme';
+import ListItem from '@/components/ui/ListItem';
+
+const FAQ_ITEMS = [
+  'No recibí el pago de mi viaje',
+  '¿Cómo cambio mi cuenta bancaria?',
+  'El pasajero ensució mi vehículo',
+  'Revisión de documentos pendientes',
+  'Entender mi nivel de Fidelity',
+];
 
 export default function SupportScreen() {
   const router = useRouter();
-  const colorScheme = useColorScheme();
 
-  const FaqItem = ({ title }: { title: string }) => (
-    <TouchableOpacity style={styles.faqItem}>
-        <Text style={styles.faqText}>{title}</Text>
-        <Ionicons name="chevron-forward" size={18} color="#ccc" />
-    </TouchableOpacity>
+  const renderChevron = () => (
+    <Ionicons name="chevron-forward" size={20} color={Colors.grey[400]} />
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: colorScheme === 'dark' ? Colors.dark.background : '#f9f9f9' }]}>
-      <Stack.Screen 
-        options={{ 
-          title: 'Centro de Ayuda', 
+    <SafeAreaView style={styles.container}>
+      <Stack.Screen
+        options={{
+          title: 'Centro de Ayuda',
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: colorScheme === 'dark' ? Colors.dark.background : '#f9f9f9' },
-          headerTintColor: colorScheme === 'dark' ? Colors.dark.text : Colors.light.text,
+          headerStyle: { backgroundColor: Colors.light.surface },
+          headerTintColor: Colors.light.text,
+          headerTitleStyle: {
+            fontSize: Typography.size.lg,
+            fontWeight: Typography.weight.semibold,
+          },
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 10 }}>
-              <Ionicons name="arrow-back" size={24} color={colorScheme === 'dark' ? Colors.dark.text : Colors.light.text} />
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color={Colors.light.text}
+              />
             </TouchableOpacity>
-          )
-        }} 
+          ),
+        }}
       />
-      
-      {/* Buscador */}
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#666" style={{marginRight: 10}} />
-        <TextInput 
-            placeholder="¿Cómo podemos ayudarte?" 
-            style={{flex: 1, fontSize: 16}}
-        />
-      </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
-        
-        {/* Acciones Rápidas */}
+        {/* Search Bar */}
+        <View style={styles.searchContainer}>
+          <Ionicons
+            name="search"
+            size={20}
+            color={Colors.grey[600]}
+            style={{ marginRight: Spacing.sm }}
+          />
+          <TextInput
+            placeholder="¿Cómo podemos ayudarte?"
+            style={styles.searchInput}
+          />
+        </View>
+
+        {/* Quick Actions */}
         <Text style={styles.sectionTitle}>Contacto Directo</Text>
         <View style={styles.contactRow}>
-            <TouchableOpacity style={styles.contactCard}>
-                <View style={[styles.iconCircle, {backgroundColor: '#E3F2FD'}]}>
-                    <Ionicons name="chatbubbles" size={24} color="#1976D2" />
-                </View>
-                <Text style={styles.contactLabel}>Chat en Vivo</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.contactCard}>
-                <View style={[styles.iconCircle, {backgroundColor: '#FFEBEE'}]}>
-                    <Ionicons name="call" size={24} color="#D32F2F" />
-                </View>
-                <Text style={styles.contactLabel}>Línea de Emergencia</Text>
-            </TouchableOpacity>
-        </View>
-
-        {/* Último Viaje (Contexto) */}
-        <View style={styles.tripCard}>
-            <View style={{flexDirection:'row', justifyContent:'space-between'}}>
-                <Text style={styles.tripTitle}>Problema con último viaje</Text>
-                <Text style={styles.tripDate}>Hoy, 10:30 AM</Text>
+          <TouchableOpacity style={styles.contactCard}>
+            <View
+              style={[
+                styles.iconCircle,
+                { backgroundColor: Colors.social.whatsapp + '20' },
+              ]}
+            >
+              <Ionicons
+                name="chatbubbles-outline"
+                size={24}
+                color={Colors.social.whatsapp}
+              />
             </View>
-            <Text style={styles.tripRoute}>Centro Histórico → Plaza Las Américas</Text>
-            <TouchableOpacity style={styles.reportBtn}>
-                <Text style={styles.reportText}>Reportar problema</Text>
-            </TouchableOpacity>
+            <Text style={styles.contactLabel}>Chat en Vivo</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.contactCard}>
+            <View
+              style={[
+                styles.iconCircle,
+                { backgroundColor: Colors.semantic.error + '20' },
+              ]}
+            >
+              <Ionicons
+                name="call-outline"
+                size={24}
+                color={Colors.semantic.error}
+              />
+            </View>
+            <Text style={styles.contactLabel}>Línea de Emergencia</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Preguntas Frecuentes */}
+        {/* Last Trip */}
+        <View style={styles.tripCard}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text style={styles.tripTitle}>Problema con último viaje</Text>
+            <Text style={styles.tripDate}>Hoy, 10:30 AM</Text>
+          </View>
+          <Text style={styles.tripRoute}>
+            Centro Histórico → Plaza Las Américas
+          </Text>
+          <TouchableOpacity style={styles.reportBtn}>
+            <Text style={styles.reportText}>Reportar problema</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* FAQs */}
         <Text style={styles.sectionTitle}>Preguntas Frecuentes</Text>
-        <View style={styles.faqList}>
-            <FaqItem title="No recibí el pago de mi viaje" />
-            <FaqItem title="¿Cómo cambio mi cuenta bancaria?" />
-            <FaqItem title="El pasajero ensució mi vehículo" />
-            <FaqItem title="Revisión de documentos pendientes" />
-            <FaqItem title="Entender mi nivel de Fidelity" />
+        <View style={styles.card}>
+          {FAQ_ITEMS.map((item, index) => (
+            <ListItem
+              key={item}
+              isFirst={index === 0}
+              isLast={index === FAQ_ITEMS.length - 1}
+              icon="help-circle-outline"
+              title={item}
+              onPress={() => {
+                /* Navigate to FAQ details */
+              }}
+              rightElement={renderChevron()}
+            />
+          ))}
         </View>
-
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9f9f9' },
-  searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', margin: 20, padding: 15, borderRadius: 10, elevation: 2 },
-  scroll: { paddingHorizontal: 20 },
-  
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 15, marginTop: 10 },
-  
-  contactRow: { flexDirection: 'row', gap: 15, marginBottom: 25 },
-  contactCard: { flex: 1, backgroundColor: '#fff', padding: 15, borderRadius: 12, alignItems: 'center', elevation: 1 },
-  iconCircle: { width: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
-  contactLabel: { fontWeight: '600', color: '#555' },
-
-  tripCard: { backgroundColor: '#fff', padding: 15, borderRadius: 12, marginBottom: 25, borderLeftWidth: 4, borderLeftColor: Colors.light.primary },
-  tripTitle: { fontWeight: 'bold', color: '#333' },
-  tripDate: { fontSize: 12, color: '#999' },
-  tripRoute: { color: '#666', marginVertical: 8, fontSize: 13 },
-  reportBtn: { alignSelf: 'flex-start' },
-  reportText: { color: Colors.light.primary, fontWeight: 'bold', fontSize: 13 },
-
-  faqList: { backgroundColor: '#fff', borderRadius: 12, overflow: 'hidden', marginBottom: 30 },
-  faqItem: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#f0f0f0', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  faqText: { color: '#444', fontSize: 14 },
+  container: { flex: 1, backgroundColor: Colors.light.surface },
+  scroll: { padding: Spacing.lg },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.base.white,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
+    ...Shadows.sm,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: Typography.size.base,
+    paddingVertical: Spacing.md,
+  },
+  sectionTitle: {
+    fontSize: Typography.size.md,
+    fontWeight: Typography.weight.bold,
+    color: Colors.light.text,
+    marginVertical: Spacing.lg,
+  },
+  contactRow: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+  contactCard: {
+    flex: 1,
+    backgroundColor: Colors.base.white,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    ...Shadows.sm,
+  },
+  iconCircle: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.sm,
+  },
+  contactLabel: {
+    fontWeight: Typography.weight.semibold,
+    color: Colors.light.text,
+    fontSize: Typography.size.sm,
+  },
+  tripCard: {
+    backgroundColor: Colors.base.white,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.lg,
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.brand.primary,
+    ...Shadows.sm,
+  },
+  tripTitle: {
+    fontWeight: Typography.weight.bold,
+    color: Colors.light.text,
+    fontSize: Typography.size.base,
+  },
+  tripDate: {
+    fontSize: Typography.size.sm,
+    color: Colors.light.textSecondary,
+  },
+  tripRoute: {
+    color: Colors.light.textSecondary,
+    marginVertical: Spacing.sm,
+    fontSize: Typography.size.sm,
+  },
+  reportBtn: {
+    alignSelf: 'flex-start',
+    marginTop: Spacing.sm,
+  },
+  reportText: {
+    color: Colors.brand.primary,
+    fontWeight: Typography.weight.bold,
+    fontSize: Typography.size.sm,
+  },
+  card: {
+    borderRadius: BorderRadius.md,
+    ...Shadows.sm,
+    overflow: 'hidden',
+    marginBottom: Spacing.xl,
+  },
 });

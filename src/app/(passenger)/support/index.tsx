@@ -1,57 +1,77 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Linking,
+} from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors, Spacing, Typography, BorderRadius, Shadows } from '@/constants/theme';
+import {
+  Colors,
+  Spacing,
+  Typography,
+  BorderRadius,
+  Shadows,
+} from '@/constants/theme';
+import { useDrawer } from '@/hooks/useDrawer';
 import { Image } from 'expo-image';
+import ListItem from '@/components/ui/ListItem'; // Import the new component
 
 const SUPPORT_CATEGORIES = [
   {
     id: 'trips',
     title: 'Viajes',
-    icon: 'car',
+    icon: 'car-outline',
     description: 'Ayuda con solicitudes y viajes',
   },
   {
     id: 'payments',
     title: 'Pagos y cobros',
-    icon: 'cash',
+    icon: 'cash-outline',
     description: 'Métodos de pago y facturación',
   },
   {
     id: 'safety',
     title: 'Seguridad',
-    icon: 'shield-checkmark',
+    icon: 'shield-checkmark-outline',
     description: 'Reportes y emergencias',
   },
   {
     id: 'account',
     title: 'Cuenta y app',
-    icon: 'person-circle',
+    icon: 'person-circle-outline',
     description: 'Configuración y perfil',
   },
   {
     id: 'legal',
     title: 'Información legal',
-    icon: 'document-text',
+    icon: 'document-text-outline',
     description: 'Términos y políticas',
   },
   {
     id: 'messages',
     title: 'Historial de mensajes',
-    icon: 'chatbubbles',
+    icon: 'chatbubbles-outline',
     description: 'Ver conversaciones anteriores',
   },
 ];
 
 export default function ImprovedSupportScreen() {
   const router = useRouter();
+  const { openDrawer } = useDrawer();
 
   const handleContact = () => {
     // router.push('/(passenger)/support/chat');
     Linking.openURL('mailto:soporte@rudix.com');
   };
+
+  const renderChevron = () => (
+    <Ionicons name="chevron-forward" size={20} color={Colors.grey[400]} />
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -60,7 +80,7 @@ export default function ImprovedSupportScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <TouchableOpacity onPress={openDrawer} style={styles.backButton}>
             <Ionicons name="menu" size={28} color={Colors.light.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Soporte y Ayuda</Text>
@@ -78,35 +98,37 @@ export default function ImprovedSupportScreen() {
         </View>
 
         {/* Search Bar */}
-        <View style={styles.searchContainer}>
+        <TouchableOpacity style={styles.searchContainer} activeOpacity={0.8}>
           <Ionicons name="search" size={20} color={Colors.grey[600]} />
           <Text style={styles.searchPlaceholder}>¿Cómo podemos ayudarte?</Text>
-        </View>
+        </TouchableOpacity>
 
         {/* Categories */}
         <View style={styles.section}>
-          {SUPPORT_CATEGORIES.map((category) => (
-            <TouchableOpacity
-              key={category.id}
-              style={styles.categoryCard}
-              onPress={() => console.log(`Navigate to ${category.id}`)}
-            >
-              <View style={styles.categoryIcon}>
-                <Ionicons name={category.icon as any} size={24} color={Colors.brand.primary} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.categoryTitle}>{category.title}</Text>
-                <Text style={styles.categoryDesc}>{category.description}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color={Colors.grey[400]} />
-            </TouchableOpacity>
-          ))}
+          <View style={styles.card}>
+            {SUPPORT_CATEGORIES.map((category, index) => (
+              <ListItem
+                key={category.id}
+                isFirst={index === 0}
+                isLast={index === SUPPORT_CATEGORIES.length - 1}
+                icon={category.icon as keyof typeof Ionicons.glyphMap}
+                title={category.title}
+                subtitle={category.description}
+                onPress={() => router.push('/(passenger)/support/faqs')}
+                rightElement={renderChevron()}
+              />
+            ))}
+          </View>
         </View>
 
         {/* Contact Button */}
         <TouchableOpacity style={styles.contactButton} onPress={handleContact}>
           <View style={styles.contactIcon}>
-            <MaterialCommunityIcons name="headset" size={24} color={Colors.base.white} />
+            <MaterialCommunityIcons
+              name="headset"
+              size={24}
+              color={Colors.base.white}
+            />
           </View>
           <Text style={styles.contactText}>Contáctanos</Text>
         </TouchableOpacity>
@@ -123,7 +145,7 @@ export default function ImprovedSupportScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.base.white,
+    backgroundColor: Colors.light.surface,
   },
   header: {
     flexDirection: 'row',
@@ -131,6 +153,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
+    backgroundColor: Colors.base.white,
   },
   backButton: {
     padding: Spacing.xs,
@@ -144,6 +167,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.xl,
     paddingVertical: Spacing.lg,
+    backgroundColor: Colors.base.white,
   },
   heroImage: {
     width: 120,
@@ -162,9 +186,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.grey[100],
     marginHorizontal: Spacing.lg,
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.md,
+    paddingVertical: 14,
     borderRadius: BorderRadius.md,
     marginBottom: Spacing.lg,
+    marginTop: Spacing.lg,
   },
   searchPlaceholder: {
     flex: 1,
@@ -175,34 +200,10 @@ const styles = StyleSheet.create({
   section: {
     paddingHorizontal: Spacing.lg,
   },
-  categoryCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.base.white,
-    padding: Spacing.md,
+  card: {
     borderRadius: BorderRadius.md,
-    marginBottom: Spacing.sm,
-    borderWidth: 1,
-    borderColor: Colors.grey[200],
-  },
-  categoryIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: Colors.brand.primary + '15',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: Spacing.md,
-  },
-  categoryTitle: {
-    fontSize: Typography.size.base,
-    fontWeight: Typography.weight.bold,
-    color: Colors.light.text,
-    marginBottom: 2,
-  },
-  categoryDesc: {
-    fontSize: Typography.size.sm,
-    color: Colors.light.textSecondary,
+    ...Shadows.sm,
+    overflow: 'hidden',
   },
   contactButton: {
     flexDirection: 'row',

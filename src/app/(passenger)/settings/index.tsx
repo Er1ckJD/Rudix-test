@@ -1,25 +1,27 @@
 // src/app/(passenger)/settings/index.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Switch,
+  Alert,
+} from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Colors, Spacing, Typography, BorderRadius, Shadows } from '@/constants/theme';
+import {
+  Colors,
+  Spacing,
+  Typography,
+  BorderRadius,
+  Shadows,
+} from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
-
-interface SettingItem {
-  id: string;
-  section: 'cuenta' | 'preferencias' | 'avanzado';
-  icon: string;
-  title: string;
-  subtitle?: string;
-  type: 'navigation' | 'toggle' | 'action';
-  route?: string;
-  value?: boolean;
-  onToggle?: (value: boolean) => void;
-  badge?: string;
-}
+import ListItem from '@/components/ui/ListItem'; // Import the new component
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -44,7 +46,7 @@ export default function SettingsScreen() {
             router.replace('/(auth)');
           },
         },
-      ]
+      ],
     );
   };
 
@@ -62,173 +64,13 @@ export default function SettingsScreen() {
             console.log('Eliminar cuenta');
           },
         },
-      ]
+      ],
     );
   };
 
-  const SETTINGS: SettingItem[] = [
-    // CUENTA
-    {
-      id: 'profile',
-      section: 'cuenta',
-      icon: 'person-circle',
-      title: 'Perfil',
-      subtitle: 'Editar información personal',
-      type: 'navigation',
-      route: '/profile',
-    },
-    {
-      id: 'payment',
-      section: 'cuenta',
-      icon: 'card',
-      title: 'Métodos de pago',
-      subtitle: 'Gestionar tarjetas y pagos',
-      type: 'navigation',
-      route: '/profile/payment-methods',
-    },
-    {
-      id: 'fidelity',
-      section: 'cuenta',
-      icon: 'shield-checkmark',
-      title: 'RuDix Fidelity',
-      subtitle: 'Ver tu nivel y beneficios',
-      type: 'navigation',
-      route: '/(passenger)/fidelity',
-      badge: 'Fidelity Plus',
-    },
-    // PREFERENCIAS
-    {
-      id: 'notifications',
-      section: 'preferencias',
-      icon: 'notifications',
-      title: 'Notificaciones',
-      subtitle: 'Gestionar alertas',
-      type: 'toggle',
-      value: notifications,
-      onToggle: setNotifications,
-    },
-    {
-      id: 'ubicacion',
-      section: 'preferencias',
-      icon: 'location',
-      title: 'Ubicación determinada',
-      subtitle: 'Compartir ubicación precisa',
-      type: 'toggle',
-      value: ubicacionDeterminada,
-      onToggle: setUbicacionDeterminada,
-    },
-    {
-      id: 'accesibilidad',
-      section: 'preferencias',
-      icon: 'accessibility',
-      title: 'Accesibilidad',
-      subtitle: 'Opciones de accesibilidad',
-      type: 'toggle',
-      value: accesibilidad,
-      onToggle: setAccesibilidad,
-    },
-    // AVANZADO
-    {
-      id: 'privacy',
-      section: 'avanzado',
-      icon: 'shield-checkmark',
-      title: 'Privacidad y seguridad',
-      subtitle: 'Controlar tu información',
-      type: 'navigation',
-      route: '/(passenger)/safety',
-    },
-    {
-      id: 'cache',
-      section: 'avanzado',
-      icon: 'trash',
-      title: 'Limpiar caché',
-      subtitle: 'Liberar espacio de almacenamiento',
-      type: 'action',
-    },
-  ];
-
-  const renderSettingItem = (item: SettingItem) => {
-    if (item.type === 'navigation') {
-      return (
-        <TouchableOpacity
-          key={item.id}
-          style={styles.settingItem}
-          onPress={() => item.route && router.push(item.route as any)}
-        >
-          <View style={styles.settingIcon}>
-            <Ionicons name={item.icon as any} size={20} color={Colors.brand.primary} />
-          </View>
-          <View style={styles.settingContent}>
-            <View style={styles.settingHeader}>
-              <Text style={styles.settingTitle}>{item.title}</Text>
-              {item.badge && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{item.badge}</Text>
-                </View>
-              )}
-            </View>
-            {item.subtitle && (
-              <Text style={styles.settingSubtitle}>{item.subtitle}</Text>
-            )}
-          </View>
-          <Ionicons name="chevron-forward" size={20} color={Colors.grey[400]} />
-        </TouchableOpacity>
-      );
-    }
-
-    if (item.type === 'toggle') {
-      return (
-        <View key={item.id} style={styles.settingItem}>
-          <View style={styles.settingIcon}>
-            <Ionicons name={item.icon as any} size={20} color={Colors.brand.primary} />
-          </View>
-          <View style={styles.settingContent}>
-            <Text style={styles.settingTitle}>{item.title}</Text>
-            {item.subtitle && (
-              <Text style={styles.settingSubtitle}>{item.subtitle}</Text>
-            )}
-          </View>
-          <Switch
-            value={item.value}
-            onValueChange={item.onToggle}
-            trackColor={{ false: Colors.grey[300], true: Colors.brand.primary }}
-            thumbColor={Colors.base.white}
-          />
-        </View>
-      );
-    }
-
-    if (item.type === 'action') {
-      return (
-        <TouchableOpacity
-          key={item.id}
-          style={styles.settingItem}
-          onPress={() => {
-            if (item.id === 'cache') {
-              Alert.alert('Caché limpiado', 'Se ha liberado el espacio correctamente.');
-            }
-          }}
-        >
-          <View style={styles.settingIcon}>
-            <Ionicons name={item.icon as any} size={20} color={Colors.brand.primary} />
-          </View>
-          <View style={styles.settingContent}>
-            <Text style={styles.settingTitle}>{item.title}</Text>
-            {item.subtitle && (
-              <Text style={styles.settingSubtitle}>{item.subtitle}</Text>
-            )}
-          </View>
-          <Ionicons name="chevron-forward" size={20} color={Colors.grey[400]} />
-        </TouchableOpacity>
-      );
-    }
-
-    return null;
-  };
-
-  const cuentaSettings = SETTINGS.filter((s) => s.section === 'cuenta');
-  const preferenciasSettings = SETTINGS.filter((s) => s.section === 'preferencias');
-  const avanzadoSettings = SETTINGS.filter((s) => s.section === 'avanzado');
+  const renderChevron = () => (
+    <Ionicons name="chevron-forward" size={20} color={Colors.grey[400]} />
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -236,8 +78,14 @@ export default function SettingsScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <LinearGradient colors={['#108A33', '#15B545']} style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <LinearGradient
+          colors={[Colors.brand.primary, Colors.brand.primaryLight]}
+          style={styles.header}
+        >
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backButton}
+          >
             <Ionicons name="menu" size={28} color={Colors.base.white} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Configuración</Text>
@@ -251,10 +99,15 @@ export default function SettingsScreen() {
         >
           <View style={styles.profileAvatar}>
             <Text style={styles.profileInitials}>
-              {user?.nombres?.[0]}{user?.apellidos?.[0]}
+              {user?.nombres?.[0]}
+              {user?.apellidos?.[0]}
             </Text>
             <View style={styles.verifiedBadge}>
-              <MaterialCommunityIcons name="check" size={12} color={Colors.base.white} />
+              <MaterialCommunityIcons
+                name="check"
+                size={12}
+                color={Colors.base.white}
+              />
             </View>
           </View>
           <View style={styles.profileInfo}>
@@ -263,12 +116,7 @@ export default function SettingsScreen() {
             </Text>
             <View style={styles.ratingContainer}>
               {[1, 2, 3, 4, 5].map((star) => (
-                <Ionicons
-                  key={star}
-                  name="star"
-                  size={14}
-                  color="#FBC02D"
-                />
+                <Ionicons key={star} name="star" size={14} color="#FBC02D" />
               ))}
               <Text style={styles.ratingText}>5.0 (11)</Text>
             </View>
@@ -276,39 +124,140 @@ export default function SettingsScreen() {
               <Text style={styles.fidelityText}>Fidelity Plus</Text>
             </View>
           </View>
-          <Ionicons name="create-outline" size={24} color={Colors.brand.primary} />
+          <Ionicons
+            name="create-outline"
+            size={24}
+            color={Colors.brand.primary}
+          />
         </TouchableOpacity>
 
-        {/* Cuenta */}
+        {/* Sections */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>CUENTA</Text>
-          {cuentaSettings.map(renderSettingItem)}
+          <View style={styles.card}>
+            <ListItem
+              isFirst
+              icon="person-circle-outline"
+              title="Perfil"
+              subtitle="Editar información personal"
+              onPress={() => router.push('/profile')}
+              rightElement={renderChevron()}
+            />
+            <ListItem
+              icon="card-outline"
+              title="Métodos de pago"
+              subtitle="Gestionar tarjetas y pagos"
+              onPress={() => router.push('/profile/payment-methods')}
+              rightElement={renderChevron()}
+            />
+            <ListItem
+              isLast
+              icon="shield-checkmark-outline"
+              title="RuDix Fidelity"
+              subtitle="Ver tu nivel y beneficios"
+              onPress={() => router.push('/(passenger)/fidelity')}
+              rightElement={renderChevron()}
+            />
+          </View>
         </View>
 
-        {/* Preferencias */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>PREFERENCIAS</Text>
-          {preferenciasSettings.map(renderSettingItem)}
+          <View style={styles.card}>
+            <ListItem
+              isFirst
+              icon="notifications-outline"
+              title="Notificaciones"
+              subtitle="Gestionar alertas"
+              rightElement={
+                <Switch
+                  value={notifications}
+                  onValueChange={setNotifications}
+                  trackColor={{
+                    false: Colors.grey[300],
+                    true: Colors.brand.primary,
+                  }}
+                  thumbColor={Colors.base.white}
+                />
+              }
+            />
+            <ListItem
+              icon="location-outline"
+              title="Ubicación determinada"
+              subtitle="Compartir ubicación precisa"
+              rightElement={
+                <Switch
+                  value={ubicacionDeterminada}
+                  onValueChange={setUbicacionDeterminada}
+                  trackColor={{
+                    false: Colors.grey[300],
+                    true: Colors.brand.primary,
+                  }}
+                  thumbColor={Colors.base.white}
+                />
+              }
+            />
+            <ListItem
+              isLast
+              icon="accessibility-outline"
+              title="Accesibilidad"
+              subtitle="Opciones de accesibilidad"
+              rightElement={
+                <Switch
+                  value={accesibilidad}
+                  onValueChange={setAccesibilidad}
+                  trackColor={{
+                    false: Colors.grey[300],
+                    true: Colors.brand.primary,
+                  }}
+                  thumbColor={Colors.base.white}
+                />
+              }
+            />
+          </View>
         </View>
 
-        {/* Avanzado */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>AVANZADO</Text>
-          {avanzadoSettings.map(renderSettingItem)}
+          <View style={styles.card}>
+            <ListItem
+              isFirst
+              icon="shield-outline"
+              title="Privacidad y seguridad"
+              subtitle="Controlar tu información"
+              onPress={() => router.push('/(passenger)/safety')}
+              rightElement={renderChevron()}
+            />
+            <ListItem
+              isLast
+              icon="trash-outline"
+              title="Limpiar caché"
+              subtitle="Liberar espacio de almacenamiento"
+              onPress={() =>
+                Alert.alert(
+                  'Caché limpiado',
+                  'Se ha liberado el espacio correctamente.',
+                )
+              }
+              rightElement={renderChevron()}
+            />
+          </View>
         </View>
 
-        {/* Logout Button */}
+        {/* Logout & Delete */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <MaterialCommunityIcons name="logout" size={20} color={Colors.semantic.error} />
+          <MaterialCommunityIcons
+            name="logout"
+            size={20}
+            color={Colors.semantic.error}
+          />
           <Text style={styles.logoutText}>Cerrar sesión</Text>
         </TouchableOpacity>
 
-        {/* Delete Account */}
         <TouchableOpacity onPress={handleDeleteAccount}>
           <Text style={styles.deleteText}>Eliminar cuenta</Text>
         </TouchableOpacity>
 
-        {/* Footer Logo */}
         <View style={styles.footer}>
           <Text style={styles.footerLogo}>RuDix</Text>
         </View>
@@ -320,7 +269,7 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.light.surface,
   },
   header: {
     paddingTop: Spacing.lg,
@@ -417,51 +366,11 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
     letterSpacing: 0.5,
   },
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  card: {
     backgroundColor: Colors.base.white,
-    padding: Spacing.md,
     borderRadius: BorderRadius.md,
-    marginBottom: Spacing.xs,
-  },
-  settingIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.brand.primary + '15',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: Spacing.md,
-  },
-  settingContent: {
-    flex: 1,
-  },
-  settingHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 2,
-  },
-  settingTitle: {
-    fontSize: Typography.size.base,
-    fontWeight: Typography.weight.medium,
-    color: Colors.light.text,
-  },
-  badge: {
-    backgroundColor: Colors.brand.primary + '15',
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 2,
-    borderRadius: BorderRadius.sm,
-    marginLeft: Spacing.sm,
-  },
-  badgeText: {
-    fontSize: Typography.size.xs,
-    fontWeight: Typography.weight.semibold,
-    color: Colors.brand.primary,
-  },
-  settingSubtitle: {
-    fontSize: Typography.size.sm,
-    color: Colors.grey[600],
+    ...Shadows.sm,
+    overflow: 'hidden',
   },
   logoutButton: {
     flexDirection: 'row',
