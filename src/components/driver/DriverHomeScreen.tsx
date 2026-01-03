@@ -155,7 +155,7 @@ export default function DriverHomeScreen() {
         />
       )}
       
-      {!currentTripStatus && (
+      {__DEV__ && !currentTripStatus && (
           <TouchableOpacity 
             onPress={simulateAcceptRide} 
             style={{position: 'absolute', top: 100, right: 20, backgroundColor: Colors.base.white, padding: 10}}>

@@ -35,11 +35,17 @@ export const Colors = {
     200: '#EEEEEE',
     300: '#E0E0E0',
     400: '#BDBDBD',
+    450: '#C5C5C5',
     500: '#9E9E9E',
     600: '#757575',
     700: '#616161',
     800: '#424242',
     900: '#212121',
+    950: '#595959',
+    1000: '#4A4A4A',
+    1100: '#363636',
+    1200: '#2B2B2B',
+    1400: '#1A1A1A',
   },
 
   // Básicos
@@ -47,6 +53,16 @@ export const Colors = {
     white: '#FFFFFF',
     black: '#000000',
     transparent: 'transparent',
+  },
+
+  // Comunes
+  common: {
+    lightGreen: '#C8E6C9',
+    darkGold: '#B8860B',
+    lightGold: '#FFF9C4',
+    gold: '#FFD700',
+    lightRed: '#FFEBEE',
+    error: '#E53935',
   },
 
   // Sociales

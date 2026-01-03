@@ -17,7 +17,11 @@ const initialContacts = [
   { id: '2', name: 'Nombre y Apellido', phone: '3310482809' },
 ];
 
-const EmergencyContactsScreen = ({ navigation }) => {
+interface EmergencyContactsScreenProps {
+  navigation: any; // O el tipo específico de navigation
+}
+
+const EmergencyContactsScreen = ({ navigation }: EmergencyContactsScreenProps) => {
   const [contacts, setContacts] = useState(initialContacts);
 
   // Funciones manejadoras (placeholders para la lógica real)

@@ -1,5 +1,5 @@
 // src/utils/performance.ts
-import { useCallback, useEffect, useRef, useMemo } from 'react';
+import React, { useCallback, useEffect, useRef, useMemo } from 'react';
 import { InteractionManager, Platform } from 'react-native';
 
 /**

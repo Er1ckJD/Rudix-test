@@ -79,14 +79,6 @@ export default function PassengerLayout() {
           }}
         />
 
-        <Drawer.Screen
-          name="settings"
-          options={{
-            drawerLabel: 'Configuración',
-            title: 'Configuración',
-          }}
-        />
-
         {/* Soporte */}
         <Drawer.Screen
           name="support"

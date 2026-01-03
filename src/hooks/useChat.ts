@@ -45,7 +45,13 @@ export function useChat(tripId: string) {
     // Limpieza al desmontar
     return () => {
       if (socket.current) {
+        socket.current.emit('leave-trip', tripId);
+        socket.current.off('connect');
+        socket.current.off('disconnect');
+        socket.current.off('initial-messages');
+        socket.current.off('new-message');
         socket.current.disconnect();
+        socket.current = null;
       }
     };
   }, [tripId]);

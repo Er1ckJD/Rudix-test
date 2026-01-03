@@ -46,7 +46,7 @@ export default function CustomDrawerContent(props: any) {
                 <DrawerItem 
                     label="Ganancias Semanales"
                     icon={({color}) => <Ionicons name="stats-chart" size={22} color={color} />}
-                    onPress={() => router.push('/driver/wallet')}
+                    onPress={() => router.push('/(driver)/earnings')}
                 />
             </View>
         )}

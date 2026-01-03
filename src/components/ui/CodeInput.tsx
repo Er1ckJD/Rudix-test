@@ -25,7 +25,7 @@ export default function CodeInput({ length = 4, onComplete }: CodeInputProps) {
     }
 
     const fullCode = newCode.join('');
-    if (fullCode.length === length) {
+    if (fullCode.length === length && /^\d+$/.test(fullCode)) {
       onComplete(fullCode);
     }
   };
