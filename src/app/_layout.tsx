@@ -24,12 +24,13 @@ function RootLayoutNav() {
     if (loading) return;
 
     const inAuthGroup = segments[0] === '(auth)';
+    const inOnboardingGroup = segments[0] === '(onboarding)';
     const inPassengerGroup = segments[0] === '(passenger)';
     const inDriverGroup = segments[0] === '(driver)';
 
     // Usuario NO autenticado
     if (!user) {
-      if (!inAuthGroup) {
+      if (!inAuthGroup && !inOnboardingGroup) {
         router.replace('/(auth)');
       }
       return;
