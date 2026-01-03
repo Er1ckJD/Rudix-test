@@ -15,13 +15,14 @@ export const apiClient = axios.create({
 
 // Función mock para refrescar el token
 async function refreshAuthToken() {
+    // TODO: Implementar refresh real cuando el backend esté listo
     console.log('Attempting to refresh auth token...');
-    // En una implementación real, harías una petición a tu endpoint de refresh
-    // y devolverías el nuevo token.
-    // Por ahora, devolvemos un token falso.
-    const newToken = 'mock-refreshed-user-token';
-    await storage.setSecureItem('userToken', newToken);
-    return newToken;
+    if (__DEV__) {
+      const newToken = 'mock-refreshed-user-token';
+      await storage.setSecureItem('userToken', newToken);
+      return newToken;
+    }
+    throw new Error('Refresh token not implemented');
 }
 
 

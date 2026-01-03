@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import MapView, { Marker } from 'react-native-maps'; //
 import { useDrawer } from '@/hooks/useDrawer';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -84,7 +84,7 @@ export default function DriverHomeScreen() {
     <View style={styles.container}>
       <MapView
         style={StyleSheet.absoluteFill}
-        customMapStyle={MAP_STYLE}
+        customMapStyle={Platform.OS === 'android' ? MAP_STYLE : undefined}
         initialRegion={{
           latitude: 37.78825,
           longitude: -122.4324,

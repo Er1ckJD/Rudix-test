@@ -6,7 +6,15 @@ import { useAuth } from '@/hooks/useAuth';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '@/constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 
-const recentTransactions = [
+interface Transaction {
+  id: string;
+  type: 'trip' | 'withdraw' | 'bonus';
+  title: string;
+  date: string;
+  amount: number;
+}
+
+const recentTransactions: Transaction[] = [
   { id: '1', type: 'trip', title: 'Viaje finalizado', date: 'Hoy, 10:30 AM', amount: 85.50 },
   { id: '2', type: 'trip', title: 'Viaje finalizado', date: 'Hoy, 09:15 AM', amount: 120.00 },
   { id: '3', type: 'withdraw', title: 'Retiro a cuenta', date: 'Ayer', amount: -500.00 },
@@ -33,7 +41,7 @@ export default function WalletScreen() {
     router.push('/(driver)/earnings/withdraw');
   };
 
-  const renderTransaction = ({ item }: any) => {
+  const renderTransaction = ({ item }: { item: Transaction }) => {
     const isPositive = item.amount > 0;
     const iconName = item.type === 'withdraw' ? 'bank-transfer-out' : item.type === 'bonus' ? 'gift' : 'car';
     

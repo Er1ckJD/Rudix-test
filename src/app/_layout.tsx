@@ -83,12 +83,16 @@ export default function RootLayout() {
     <ErrorBoundary>
         <ColorSchemeProvider>
             <AuthProvider>
-                <StripeProvider
-                    publishableKey={stripeKey || ''}
-                    merchantIdentifier="merchant.com.rudix" // Requerido para Apple Pay
-                >
-                    <RootLayoutNav />
-                </StripeProvider>
+                {stripeKey ? (
+                  <StripeProvider
+                      publishableKey={stripeKey}
+                      merchantIdentifier="merchant.com.rudix" // Requerido para Apple Pay
+                  >
+                      <RootLayoutNav />
+                  </StripeProvider>
+                ) : (
+                  <RootLayoutNav />
+                )}
                 <Toast />
             </AuthProvider>
         </ColorSchemeProvider>

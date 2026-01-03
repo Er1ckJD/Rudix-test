@@ -9,9 +9,13 @@ export function useLocation() {
 
   useEffect(() => {
     (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
+      let { status, canAskAgain } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
+        if (!canAskAgain) {
+          setErrorMsg('Permisos bloqueados permanentemente. Debes habilitarlos desde Configuración del dispositivo.');
+        } else {
+          setErrorMsg('Permisos de ubicación denegados. Por favor habilítalos en Configuración.');
+        }
         setHasPermission(false);
         return;
       }
