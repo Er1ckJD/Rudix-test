@@ -5,9 +5,11 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import 'react-native-reanimated';
+import Toast from 'react-native-toast-message';
 
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { ColorSchemeProvider, useColorScheme } from '@/hooks/use-color-scheme';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 // Layout interno con acceso a auth
 function RootLayoutNav() {
@@ -74,10 +76,13 @@ function RootLayoutNav() {
 // Provider wrapper
 export default function RootLayout() {
   return (
-    <ColorSchemeProvider>
-      <AuthProvider>
-        <RootLayoutNav />
-      </AuthProvider>
-    </ColorSchemeProvider>
+    <ErrorBoundary>
+        <ColorSchemeProvider>
+            <AuthProvider>
+                <RootLayoutNav />
+                <Toast />
+            </AuthProvider>
+        </ColorSchemeProvider>
+    </ErrorBoundary>
   );
 }

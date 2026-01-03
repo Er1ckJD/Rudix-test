@@ -1,8 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useRouter, Redirect } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import BalanceCard from '../../../components/driver/BalanceCard';
+import { useAuth } from '@/hooks/useAuth';
+import { Colors } from '@/constants/theme';
 
 // Datos de ejemplo para historial
 const recentTransactions = [
@@ -14,13 +16,26 @@ const recentTransactions = [
 
 export default function WalletScreen() {
   const router = useRouter();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+        <View style={styles.centered}>
+            <ActivityIndicator size="large" color={Colors.light.primary} />
+        </View>
+    );
+  }
+
+  if (!user || !user.roles?.includes('driver')) {
+    return <Redirect href="/(passenger)/(home)" />;
+  }
 
   const handleWithdraw = () => {
-    router.push('/driver/wallet/withdraw');
+    router.push('/(driver)/earnings/withdraw'); // Assuming you have this route
   };
 
   const handlePaymentMethods = () => {
-    router.push('/driver/wallet/payment-methods');
+    router.push('/(driver)/settings'); // Redirecting to a general settings page
   };
 
   const renderTransaction = ({ item }: any) => {
@@ -45,7 +60,6 @@ export default function WalletScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header personalizado si no usas el por defecto de la navegación */}
       <View style={styles.header}>
          <Text style={styles.headerTitle}>Billetera</Text>
          <TouchableOpacity onPress={handlePaymentMethods}>
@@ -55,13 +69,11 @@ export default function WalletScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
-        {/* Tarjeta de Saldo */}
         <BalanceCard 
           balance={1850.50} 
           onWithdrawPress={handleWithdraw} 
         />
 
-        {/* Sección de acciones rápidas */}
         <View style={styles.actionsContainer}>
           <Text style={styles.sectionTitle}>Acciones</Text>
           <TouchableOpacity style={styles.actionButton} onPress={handlePaymentMethods}>
@@ -81,7 +93,6 @@ export default function WalletScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Historial Reciente */}
         <View style={styles.historyContainer}>
           <Text style={styles.sectionTitle}>Actividad Reciente</Text>
           {recentTransactions.map((item) => (
@@ -101,6 +112,7 @@ export default function WalletScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8f9fa' },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',

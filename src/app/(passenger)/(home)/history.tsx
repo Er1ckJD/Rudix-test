@@ -1,6 +1,6 @@
 // app/(passenger)/(home)/history.tsx (OPTIMIZADA)
-import React, { useState, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -88,6 +88,7 @@ export default function HistoryScreen() {
   const router = useRouter();
   
   // Estado
+  const [loading, setLoading] = useState(true);
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('all');
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -97,11 +98,18 @@ export default function HistoryScreen() {
     useRenderCount('HistoryScreen');
   }
 
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1500); // Simular carga inicial
+    return () => clearTimeout(timer);
+  }, []);
+
   // Debounce del search
   const debouncedSearch = useDebounce(searchQuery, 300);
 
   // Filtrar y buscar trips
   const filteredTrips = useMemo(() => {
+    if (loading) return []; // No procesar si está en carga inicial
+
     let trips = MOCK_TRIPS;
 
     // Filtrar por estado
@@ -120,7 +128,7 @@ export default function HistoryScreen() {
     }
 
     return trips;
-  }, [selectedFilter, debouncedSearch]);
+  }, [selectedFilter, debouncedSearch, loading]);
 
   // ============================================
   // HANDLERS
@@ -163,32 +171,32 @@ export default function HistoryScreen() {
 
   const renderEmpty = useCallback(
     () => (
-      <View style={styles.emptyContainer}>
-        <Ionicons name="car-outline" size={64} color={Colors.grey[400]} />
-        <Text style={styles.emptyTitle}>No hay viajes</Text>
-        <Text style={styles.emptySubtitle}>
-          Tus viajes {selectedFilter !== 'all' ? selectedFilter : ''} aparecerán aquí
-        </Text>
-        <Button
-          title="Solicitar Viaje"
-          variant="primary"
-          gradient
-          onPress={() => router.push('/(passenger)/(home)')}
-          style={{ marginTop: Spacing.lg }}
-        />
-      </View>
+      loading ? null : ( // No mostrar nada si está cargando
+        <View style={styles.emptyContainer}>
+          <Ionicons name="car-outline" size={64} color={Colors.grey[400]} />
+          <Text style={styles.emptyTitle}>No hay viajes</Text>
+          <Text style={styles.emptySubtitle}>
+            Tus viajes {selectedFilter !== 'all' ? selectedFilter : ''} aparecerán aquí
+          </Text>
+          <Button
+            title="Solicitar Viaje"
+            variant="primary"
+            gradient
+            onPress={() => router.push('/(passenger)/(home)')}
+            style={{ marginTop: Spacing.lg }}
+          />
+        </View>
+      )
     ),
-    [selectedFilter, router]
+    [selectedFilter, router, loading]
   );
 
-  const renderFooter = useCallback(
-    () =>
-      refreshing ? (
-        <View style={styles.loadingFooter}>
-          <SkeletonTripCard />
-        </View>
-      ) : null,
-    [refreshing]
+  const renderLoadingState = () => (
+    <View style={styles.listContent}>
+        <SkeletonTripCard />
+        <SkeletonTripCard />
+        <SkeletonTripCard />
+    </View>
   );
 
   // ============================================
@@ -224,18 +232,18 @@ export default function HistoryScreen() {
         </View>
       </View>
 
-      {/* Lista optimizada */}
-      <FlatList
-        data={filteredTrips}
-        renderItem={renderTripItem}
-        keyExtractor={createKeyExtractor('trip')}
-        ListEmptyComponent={renderEmpty}
-        ListFooterComponent={renderFooter}
-        contentContainerStyle={styles.listContent}
-        refreshing={refreshing}
-        onRefresh={handleRefresh}
-        {...OptimizedFlatListConfig}
-      />
+      {loading ? renderLoadingState() : (
+        <FlatList
+            data={filteredTrips}
+            renderItem={renderTripItem}
+            keyExtractor={createKeyExtractor('trip')}
+            ListEmptyComponent={renderEmpty}
+            contentContainerStyle={styles.listContent}
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            {...OptimizedFlatListConfig}
+        />
+      )}
     </Screen>
   );
 }

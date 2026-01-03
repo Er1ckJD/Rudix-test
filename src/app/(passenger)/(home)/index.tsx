@@ -1,41 +1,85 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Region } from 'react-native-maps';
 import { useDrawer } from '@/hooks/useDrawer';
 import { Colors, Spacing, Typography, Shadows, BorderRadius } from '@/constants/theme';
+import { useLocation } from '@/hooks/useLocation';
 
 function PassengerHomeScreen() {
   const router = useRouter();
   const { openDrawer } = useDrawer();
   const insets = useSafeAreaInsets();
+  const { location, errorMsg, hasPermission } = useLocation();
+  const mapRef = useRef<MapView>(null);
 
-  const INITIAL_REGION = {
+  const INITIAL_REGION: Region = {
     latitude: 19.4326,
     longitude: -99.1332,
-    latitudeDelta: 0.015,
-    longitudeDelta: 0.0121,
-  };
-
-  const handleSearchPress = () => {
-    // La ruta debe ser relativa al layout actual
-    router.push('/(passenger)/ride/search');
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
   };
   
-  const handleProfilePress = () => {
-    router.push('/(passenger)/profile');
+  const handleSearchPress = () => {
+    router.push('/(passenger)/ride/search');
   };
+
+  const handleProfilePress = () => {
+    router.push('/profile');
+  };
+
+  const goToMyLocation = () => {
+    if (location && mapRef.current) {
+      mapRef.current.animateToRegion({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    }
+  };
+  
+  if (hasPermission === false) {
+    return (
+      <View style={styles.centered}>
+        <Text>Permission to access location was denied.</Text>
+      </View>
+    );
+  }
+
+  if (errorMsg) {
+    return (
+      <View style={styles.centered}>
+        <Text>{errorMsg}</Text>
+      </View>
+    );
+  }
+  
+  if (!location) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color={Colors.brand.primary} />
+        <Text style={{marginTop: Spacing.md}}>Obteniendo ubicación...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       
       <MapView
+        ref={mapRef}
         style={styles.map}
         mapPadding={{ top: insets.top, right: 0, bottom: 280, left: 0 }}
-        initialRegion={INITIAL_REGION}
-        showsUserLocation={true}
+        initialRegion={{
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+          latitudeDelta: 0.015,
+          longitudeDelta: 0.0121,
+        }}
+        showsUserLocation
         showsMyLocationButton={false}
       >
          <Marker coordinate={{ latitude: 19.4340, longitude: -99.1350 }}>
@@ -64,7 +108,10 @@ function PassengerHomeScreen() {
           </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={[styles.gpsButton, { bottom: 300 + insets.bottom }]}>
+      <TouchableOpacity 
+        style={[styles.gpsButton, { bottom: 300 + insets.bottom }]}
+        onPress={goToMyLocation}
+      >
           <Ionicons name="locate" size={24} color={Colors.brand.primary} />
       </TouchableOpacity>
 
@@ -135,6 +182,11 @@ const FavoriteItem = ({ icon, color, title, subtitle }: any) => (
 );
 
 const styles = StyleSheet.create({
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: { flex: 1, backgroundColor: Colors.base.white },
   map: { ...StyleSheet.absoluteFillObject },
   
