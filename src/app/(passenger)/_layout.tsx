@@ -34,6 +34,24 @@ export default function PassengerLayout() {
           }}
         />
 
+        {/* Fidelidad */}
+        <Drawer.Screen
+          name="fidelity"
+          options={{
+            drawerLabel: 'Fidelity',
+            title: 'RuDix Fidelity',
+          }}
+        />
+
+        {/* Notificaciones */}
+        <Drawer.Screen
+          name="notifications"
+          options={{
+            drawerLabel: 'Notificaciones',
+            title: 'Notificaciones',
+          }}
+        />
+
         {/* Perfil */}
         <Drawer.Screen
           name="profile"
@@ -53,6 +71,14 @@ export default function PassengerLayout() {
         />
 
         {/* Configuración */}
+        <Drawer.Screen
+          name="settings"
+          options={{
+            drawerLabel: 'Configuración',
+            title: 'Configuración',
+          }}
+        />
+
         <Drawer.Screen
           name="settings"
           options={{

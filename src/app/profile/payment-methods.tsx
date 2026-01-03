@@ -8,50 +8,68 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FontAwesome5 } from '@expo/vector-icons';
-import { ThemedText } from '@/components/themed-text';
+import { FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { useRouter, Stack } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '@/constants/theme';
 
 type PaymentMethod = {
   id: string;
   brand: string;
   last4: string;
   isDefault: boolean;
+  exp: string;
 };
 
 const MOCK_PAYMENT_METHODS: PaymentMethod[] = [
-  { id: '1', brand: 'Visa', last4: '4242', isDefault: true },
-  { id: '2', brand: 'Mastercard', last4: '5555', isDefault: false },
+  { id: '1', brand: 'Visa', last4: '4242', isDefault: true, exp: '12/28' },
+  { id: '2', brand: 'Mastercard', last4: '5555', isDefault: false, exp: '08/26'},
 ];
 
 export default function PassengerPaymentMethods() {
   const [paymentMethods, setPaymentMethods] = useState(MOCK_PAYMENT_METHODS);
+  const router = useRouter();
 
   const renderItem = ({ item }: { item: PaymentMethod }) => (
-    <View style={styles.card}>
-      <FontAwesome5
-        name={item.brand.toLowerCase() === 'visa' ? 'cc-visa' : 'cc-mastercard'}
-        size={24}
-        color="#333"
-      />
-      <View style={styles.cardDetails}>
-        <ThemedText style={styles.cardBrand}>
-          {item.brand} **** {item.last4}
-        </ThemedText>
-        {item.isDefault && (
-          <ThemedText style={styles.defaultBadge}>Predeterminado</ThemedText>
-        )}
-      </View>
-      <TouchableOpacity onPress={() => Alert.alert('Eliminar', 'Próximamente...')}>
-        <FontAwesome5 name="trash" size={20} color="#999" />
-      </TouchableOpacity>
-    </View>
+    <LinearGradient
+        colors={item.isDefault ? ['#108A33', '#15B545'] : ['#333', '#555']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.card}
+    >
+        <View style={styles.cardHeader}>
+            <FontAwesome5
+                name={item.brand.toLowerCase() === 'visa' ? 'cc-visa' : 'cc-mastercard'}
+                size={36}
+                color="white"
+            />
+            {item.isDefault && (
+                <View style={styles.defaultBadge}>
+                    <Text style={styles.defaultBadgeText}>Predeterminado</Text>
+                </View>
+            )}
+        </View>
+        <Text style={styles.cardNumber}>**** **** **** {item.last4}</Text>
+        <View style={styles.cardFooter}>
+            <Text style={styles.cardExp}>Expira: {item.exp}</Text>
+            <TouchableOpacity onPress={() => Alert.alert('Eliminar', 'Próximamente...')}>
+                <Ionicons name="trash-outline" size={22} color="white" />
+            </TouchableOpacity>
+        </View>
+    </LinearGradient>
   );
 
   return (
     <SafeAreaView style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.header}>
-        <ThemedText type="title">Métodos de Pago</ThemedText>
+        <TouchableOpacity onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={24} color={Colors.light.text} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Métodos de Pago</Text>
+        <View style={{width: 24}}/>
       </View>
+
       <FlatList
         data={paymentMethods}
         renderItem={renderItem}
@@ -59,16 +77,18 @@ export default function PassengerPaymentMethods() {
         contentContainerStyle={styles.list}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <ThemedText>No tienes métodos de pago.</ThemedText>
+            <Ionicons name="wallet-outline" size={64} color={Colors.grey[400]}/>
+            <Text style={styles.emptyText}>Aún no tienes métodos de pago</Text>
+            <Text style={styles.emptySubtitle}>Agrega una tarjeta para tus viajes.</Text>
           </View>
         }
       />
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => Alert.alert('Agregar', 'Próximamente...')}
+        onPress={() => router.push('/profile/add-card')}
       >
-        <FontAwesome5 name="plus" size={18} color="white" />
-        <Text style={styles.addButtonText}>Agregar nuevo método</Text>
+        <Ionicons name="add" size={24} color="white" />
+        <Text style={styles.addButtonText}>Agregar Nueva Tarjeta</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -80,9 +100,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#e9ecef',
+    backgroundColor: 'white',
+  },
+  headerTitle: {
+      fontSize: Typography.size.lg,
+      fontWeight: Typography.weight.bold,
   },
   list: {
     padding: 20,
@@ -91,43 +119,67 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 50,
+    marginTop: 100,
+  },
+  emptyText: {
+      fontSize: Typography.size.lg,
+      fontWeight: Typography.weight.semibold,
+      marginTop: Spacing.md,
+      color: Colors.grey[600],
+  },
+  emptySubtitle: {
+    fontSize: Typography.size.base,
+    color: Colors.grey[500],
+    marginTop: Spacing.xs,
   },
   card: {
-    backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 15,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    marginBottom: Spacing.lg,
+    ...Shadows.lg,
+  },
+  cardHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
-  },
-  cardDetails: {
-    flex: 1,
-    marginLeft: 15,
-  },
-  cardBrand: {
-    fontSize: 16,
-    fontWeight: '600',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: Spacing.xxl,
   },
   defaultBadge: {
-    fontSize: 12,
-    color: '#28a745',
-    marginTop: 4,
+      backgroundColor: 'rgba(255,255,255,0.2)',
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: Spacing.xs,
+      borderRadius: BorderRadius.sm,
+  },
+  defaultBadgeText: {
+      color: 'white',
+      fontSize: Typography.size.xs,
+      fontWeight: Typography.weight.bold,
+  },
+  cardNumber: {
+      color: 'white',
+      fontSize: Typography.size.lg,
+      fontFamily: 'monospace',
+      letterSpacing: 2,
+      marginBottom: Spacing.md,
+  },
+  cardFooter: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+  },
+  cardExp: {
+      color: 'white',
+      fontSize: Typography.size.sm,
   },
   addButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: Colors.brand.primary,
     margin: 20,
     padding: 15,
-    borderRadius: 8,
+    borderRadius: BorderRadius.xl,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 3,
+    ...Shadows.md,
   },
   addButtonText: {
     color: 'white',

@@ -1,57 +1,41 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { GiftedChat, IMessage } from 'react-native-gifted-chat';
 import { useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StyleSheet } from 'react-native';
-
-// Mock user and driver details
-const USER_SELF = {
-  _id: 1,
-  name: 'Passenger',
-  avatar: 'https://i.pravatar.cc/150?u=passenger',
-};
-
-const USER_OTHER = {
-  _id: 2,
-  name: 'Driver',
-  avatar: 'https://i.pravatar.cc/150?u=driver',
-};
+import { StyleSheet, View, Text } from 'react-native';
+import { useChat } from '@/hooks/useChat';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ChatScreen() {
-  const { id: chatId } = useLocalSearchParams();
-  const [messages, setMessages] = useState<IMessage[]>([]);
-
-  useEffect(() => {
-    // Mock loading initial messages for the given chatId
-    setMessages([
-      {
-        _id: 1,
-        text: '¡Hola! Ya estoy en camino.',
-        createdAt: new Date(Date.now() - 60 * 1000), // 1 minute ago
-        user: USER_OTHER,
-      },
-      {
-        _id: 2,
-        text: 'Perfecto, ¡te espero!',
-        createdAt: new Date(),
-        user: USER_SELF,
-      },
-    ]);
-  }, [chatId]);
+  const { id: chatId } = useLocalSearchParams<{ id: string }>();
+  const { user } = useAuth();
+  const { messages, isConnected, sendMessage } = useChat(chatId);
 
   const onSend = useCallback((newMessages: IMessage[] = []) => {
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, newMessages)
-    );
-    // Here you would send the message to your backend
-  }, []);
+    const messageToSend = {
+      ...newMessages[0],
+      user: {
+        _id: user?.id || 0,
+        name: user?.name || 'Passenger',
+      }
+    };
+    sendMessage(messageToSend);
+  }, [sendMessage, user]);
 
   return (
     <SafeAreaView style={styles.container}>
+        {!isConnected && (
+            <View style={styles.connectionStatus}>
+                <Text style={styles.connectionText}>Conectando...</Text>
+            </View>
+        )}
       <GiftedChat
         messages={messages}
         onSend={(msgs) => onSend(msgs)}
-        user={USER_SELF}
+        user={{
+            _id: user?.id || 0,
+            name: user?.name || 'Passenger',
+        }}
         placeholder="Escribe un mensaje..."
         alwaysShowSend
       />
@@ -63,5 +47,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
+  },
+  connectionStatus: {
+    backgroundColor: '#ffc107',
+    padding: 5,
+    alignItems: 'center',
+  },
+  connectionText: {
+    color: 'white',
   },
 });

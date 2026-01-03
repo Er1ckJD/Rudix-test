@@ -1,0 +1,58 @@
+import { NotificationItem } from '@/app/(passenger)/notifications';
+
+export const MOCK_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: '1',
+    type: 'trip',
+    title: 'Viaje completado',
+    message: 'Tu viaje a Plaza Las Américas ha sido completado. ¡Gracias por usar nuestro servicio!',
+    time: 'Hace 5 min',
+    read: false,
+    icon: 'receipt',
+  },
+  {
+    id: '2',
+    type: 'promo',
+    title: '¡Oferta especial!',
+    message: '20% de descuento en tu próximo viaje. Usa el código: Verano2025',
+    time: 'Hace 5 min',
+    read: true,
+    icon: 'gift',
+  },
+  {
+    id: '3',
+    type: 'trip',
+    title: 'Viaje completado',
+    message: 'Tu viaje a Plaza Las Américas ha sido completado. ¡Gracias por usar nuestro servicio!',
+    time: 'Hace 5 min',
+    read: false,
+    icon: 'receipt',
+  },
+  {
+    id: '4',
+    type: 'promo',
+    title: '¡Oferta especial!',
+    message: '20% de descuento en tu próximo viaje. Usa el código: Verano2025',
+    time: 'Hace 8 min',
+    read: true,
+    icon: 'gift',
+  },
+  {
+    id: '5',
+    type: 'trip',
+    title: 'Viaje completado',
+    message: 'Tu viaje a Plaza Las Américas ha sido completado. ¡Gracias por usar nuestro servicio!',
+    time: 'Hace 5 min',
+    read: false,
+    icon: 'receipt',
+  },
+  {
+    id: '6',
+    type: 'promo',
+    title: '¡Oferta especial!',
+    message: '20% de descuento en tu próximo viaje. Usa el código: Verano2025',
+    time: 'Hace 8 min',
+    read: true,
+    icon: 'gift',
+  },
+];

@@ -1,12 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { useRouter, Redirect } from 'expo-router';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import BalanceCard from '../../../components/driver/BalanceCard';
+import { useRouter, Redirect, Stack } from 'expo-router';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/hooks/useAuth';
-import { Colors } from '@/constants/theme';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '@/constants/theme';
+import { LinearGradient } from 'expo-linear-gradient';
 
-// Datos de ejemplo para historial
 const recentTransactions = [
   { id: '1', type: 'trip', title: 'Viaje finalizado', date: 'Hoy, 10:30 AM', amount: 85.50 },
   { id: '2', type: 'trip', title: 'Viaje finalizado', date: 'Hoy, 09:15 AM', amount: 120.00 },
@@ -31,11 +30,7 @@ export default function WalletScreen() {
   }
 
   const handleWithdraw = () => {
-    router.push('/(driver)/earnings/withdraw'); // Assuming you have this route
-  };
-
-  const handlePaymentMethods = () => {
-    router.push('/(driver)/settings'); // Redirecting to a general settings page
+    router.push('/(driver)/earnings/withdraw');
   };
 
   const renderTransaction = ({ item }: any) => {
@@ -44,14 +39,14 @@ export default function WalletScreen() {
     
     return (
       <View style={styles.transactionItem}>
-        <View style={styles.iconBox}>
-          <MaterialCommunityIcons name={iconName} size={24} color="#333" />
+        <View style={[styles.iconBox, {backgroundColor: isPositive ? Colors.brand.primary+'20' : Colors.semantic.error+'20'}]}>
+          <MaterialCommunityIcons name={iconName} size={24} color={isPositive ? Colors.brand.primary : Colors.semantic.error} />
         </View>
         <View style={styles.transactionInfo}>
           <Text style={styles.transactionTitle}>{item.title}</Text>
           <Text style={styles.transactionDate}>{item.date}</Text>
         </View>
-        <Text style={[styles.transactionAmount, { color: isPositive ? '#000' : '#E53935' }]}>
+        <Text style={[styles.transactionAmount, { color: isPositive ? Colors.semantic.success : Colors.semantic.error }]}>
           {isPositive ? '+' : ''}${Math.abs(item.amount).toFixed(2)}
         </Text>
       </View>
@@ -60,38 +55,38 @@ export default function WalletScreen() {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen options={{headerShown: false}}/>
+      <LinearGradient colors={[Colors.grey[100], Colors.base.white]} style={styles.background} />
+      
       <View style={styles.header}>
-         <Text style={styles.headerTitle}>Billetera</Text>
-         <TouchableOpacity onPress={handlePaymentMethods}>
-            <MaterialCommunityIcons name="credit-card-settings-outline" size={26} color="#000" />
+         <TouchableOpacity onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={24} />
+         </TouchableOpacity>
+         <Text style={styles.headerTitle}>Mi Billetera</Text>
+         <TouchableOpacity>
+            <Ionicons name="ellipsis-horizontal" size={24} />
          </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
-        <BalanceCard 
-          balance={1850.50} 
-          onWithdrawPress={handleWithdraw} 
-        />
-
-        <View style={styles.actionsContainer}>
-          <Text style={styles.sectionTitle}>Acciones</Text>
-          <TouchableOpacity style={styles.actionButton} onPress={handlePaymentMethods}>
-            <View style={styles.actionLeft}>
-              <MaterialCommunityIcons name="bank" size={24} color="#000" />
-              <Text style={styles.actionText}>Métodos de pago</Text>
+        <LinearGradient
+            colors={[Colors.brand.primary, '#15B545']}
+            style={styles.balanceCard}
+        >
+            <Text style={styles.balanceLabel}>Balance Actual</Text>
+            <Text style={styles.balanceAmount}>,850.50</Text>
+            <View style={styles.balanceActions}>
+                <TouchableOpacity style={styles.balanceButton} onPress={handleWithdraw}>
+                    <Ionicons name="arrow-down-circle-outline" size={20} color={Colors.brand.primary}/>
+                    <Text style={styles.balanceButtonText}>Retirar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.balanceButton}>
+                    <Ionicons name="add-circle-outline" size={20} color={Colors.brand.primary}/>
+                    <Text style={styles.balanceButtonText}>Depositar</Text>
+                </TouchableOpacity>
             </View>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#ccc" />
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.actionButton}>
-             <View style={styles.actionLeft}>
-              <MaterialCommunityIcons name="file-document-outline" size={24} color="#000" />
-              <Text style={styles.actionText}>Información fiscal</Text>
-            </View>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#ccc" />
-          </TouchableOpacity>
-        </View>
+        </LinearGradient>
 
         <View style={styles.historyContainer}>
           <Text style={styles.sectionTitle}>Actividad Reciente</Text>
@@ -111,7 +106,8 @@ export default function WalletScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
+  container: { flex: 1, backgroundColor: Colors.base.white },
+  background: { ...StyleSheet.absoluteFillObject },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   header: {
     flexDirection: 'row',
@@ -119,48 +115,75 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 50,
-    paddingBottom: 10,
-    backgroundColor: '#fff',
+    paddingBottom: 20,
   },
-  headerTitle: { fontSize: 24, fontWeight: 'bold' },
-  scrollContent: { paddingBottom: 30 },
-  actionsContainer: { marginTop: 20, paddingHorizontal: 16 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', marginBottom: 10, color: '#333' },
-  actionButton: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
-    marginBottom: 10,
-    borderRadius: 12,
-    elevation: 1,
+  headerTitle: { fontSize: 22, fontWeight: 'bold' },
+  scrollContent: { paddingBottom: 30, paddingHorizontal: Spacing.lg },
+
+  balanceCard: {
+      borderRadius: BorderRadius.xl,
+      padding: Spacing.xl,
+      ...Shadows.lg,
+      marginBottom: Spacing.xl,
   },
-  actionLeft: { flexDirection: 'row', alignItems: 'center' },
-  actionText: { marginLeft: 12, fontSize: 16, fontWeight: '500' },
-  historyContainer: { marginTop: 20, paddingHorizontal: 16 },
+  balanceLabel: {
+      color: 'rgba(255,255,255,0.8)',
+      fontSize: Typography.size.base,
+      marginBottom: Spacing.xs,
+  },
+  balanceAmount: {
+      color: 'white',
+      fontSize: 48,
+      fontWeight: 'bold',
+      marginBottom: Spacing.lg,
+  },
+  balanceActions: {
+      flexDirection: 'row',
+      gap: Spacing.md,
+  },
+  balanceButton: {
+      flex: 1,
+      flexDirection: 'row',
+      backgroundColor: 'white',
+      paddingVertical: Spacing.md,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: BorderRadius.lg,
+      gap: Spacing.sm,
+  },
+  balanceButtonText: {
+      color: Colors.brand.primary,
+      fontWeight: 'bold',
+      fontSize: Typography.size.base,
+  },
+
+  historyContainer: { 
+      backgroundColor: 'white',
+      borderRadius: BorderRadius.xl,
+      padding: Spacing.lg,
+      ...Shadows.md
+  },
+  sectionTitle: { fontSize: 18, fontWeight: '700', marginBottom: 15, color: '#333' },
+
   transactionItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    backgroundColor: '#fff',
-    paddingHorizontal: 10,
+    borderBottomColor: '#f0f0f0',
   },
   iconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f0f0f0',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
   transactionInfo: { flex: 1 },
   transactionTitle: { fontSize: 16, fontWeight: '600' },
-  transactionDate: { fontSize: 13, color: '#888' },
-  transactionAmount: { fontSize: 16, fontWeight: '600' },
-  viewAllButton: { padding: 15, alignItems: 'center' },
-  viewAllText: { color: '#007AFF', fontWeight: '600' },
+  transactionDate: { fontSize: 13, color: '#888', marginTop: 2 },
+  transactionAmount: { fontSize: 16, fontWeight: 'bold' },
+  viewAllButton: { padding: 15, alignItems: 'center', marginTop: 10 },
+  viewAllText: { color: Colors.brand.primary, fontWeight: '600', fontSize: Typography.size.base },
 });

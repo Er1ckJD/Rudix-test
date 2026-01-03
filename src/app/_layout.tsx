@@ -6,6 +6,8 @@ import { StatusBar } from 'expo-status-bar';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
+import { StripeProvider } from '@stripe/stripe-react-native';
+import Constants from 'expo-constants';
 
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { ColorSchemeProvider, useColorScheme } from '@/hooks/use-color-scheme';
@@ -75,11 +77,18 @@ function RootLayoutNav() {
 
 // Provider wrapper
 export default function RootLayout() {
+  const stripeKey = Constants.expoConfig?.extra?.stripeKey;
+
   return (
     <ErrorBoundary>
         <ColorSchemeProvider>
             <AuthProvider>
-                <RootLayoutNav />
+                <StripeProvider
+                    publishableKey={stripeKey || ''}
+                    merchantIdentifier="merchant.com.rudix" // Requerido para Apple Pay
+                >
+                    <RootLayoutNav />
+                </StripeProvider>
                 <Toast />
             </AuthProvider>
         </ColorSchemeProvider>

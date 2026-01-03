@@ -23,50 +23,7 @@ import {
 
 // Tipos
 import { Trip, TripStatus } from '@/types/trip';
-
-// ============================================
-// DATOS MOCK (reemplazar con API)
-// ============================================
-
-const MOCK_TRIPS: Trip[] = [
-  {
-    id: 'trip_1',
-    date: '15 Dic 2025 - 14:30',
-    pickupAddress: 'Centro Histórico',
-    dropoffAddress: 'Plaza las Américas',
-    price: '$ 89.00',
-    status: 'completed',
-    distance: '8.2 km',
-    duration: '22 min',
-    driver: {
-      id: 'd1',
-      name: 'Carlos Mendoza',
-      rating: 4.82,
-      photoUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
-      vehicleModel: 'Nissan Versa',
-      vehiclePlate: 'A23348*D',
-    },
-  },
-  {
-    id: 'trip_2',
-    date: '14 Dic 2025 - 09:15',
-    pickupAddress: 'Av. Reforma',
-    dropoffAddress: 'Aeropuerto INT',
-    price: '$ 150.00',
-    status: 'completed',
-    distance: '12.5 km',
-    duration: '45 min',
-    driver: {
-      id: 'd2',
-      name: 'Ana López',
-      rating: 4.95,
-      photoUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
-      vehicleModel: 'Kia Rio',
-      vehiclePlate: 'B9912*Z',
-    },
-  },
-  // Agregar más trips...
-];
+import { getTripHistory } from '@/api/services/tripService';
 
 // ============================================
 // FILTROS
@@ -89,6 +46,7 @@ export default function HistoryScreen() {
   
   // Estado
   const [loading, setLoading] = useState(true);
+  const [trips, setTrips] = useState<Trip[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('all');
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -98,9 +56,21 @@ export default function HistoryScreen() {
     useRenderCount('HistoryScreen');
   }
 
+  const fetchHistory = async () => {
+    try {
+        const tripHistory = await getTripHistory();
+        setTrips(tripHistory);
+    } catch (error) {
+        console.error("Failed to fetch trip history:", error);
+        // Aquí podrías mostrar un toast de error
+    } finally {
+        setLoading(false);
+        setRefreshing(false);
+    }
+  }
+
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1500); // Simular carga inicial
-    return () => clearTimeout(timer);
+    fetchHistory();
   }, []);
 
   // Debounce del search
@@ -108,47 +78,42 @@ export default function HistoryScreen() {
 
   // Filtrar y buscar trips
   const filteredTrips = useMemo(() => {
-    if (loading) return []; // No procesar si está en carga inicial
+    if (loading) return []; 
 
-    let trips = MOCK_TRIPS;
+    let filtered = trips;
 
     // Filtrar por estado
     if (selectedFilter !== 'all') {
-      trips = trips.filter((trip) => trip.status === selectedFilter);
+      filtered = filtered.filter((trip) => trip.status === selectedFilter);
     }
 
     // Buscar por dirección
     if (debouncedSearch) {
       const query = debouncedSearch.toLowerCase();
-      trips = trips.filter(
+      filtered = filtered.filter(
         (trip) =>
           trip.pickupAddress.toLowerCase().includes(query) ||
           trip.dropoffAddress.toLowerCase().includes(query)
       );
     }
 
-    return trips;
-  }, [selectedFilter, debouncedSearch, loading]);
+    return filtered;
+  }, [selectedFilter, debouncedSearch, loading, trips]);
 
   // ============================================
   // HANDLERS
   // ============================================
 
-  const handleRefresh = useCallback(async () => {
+  const handleRefresh = useCallback(() => {
     setRefreshing(true);
-    // Simular fetch
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setRefreshing(false);
+    fetchHistory();
   }, []);
 
   const handleTripPress = useCallback(
     (tripId: string) => {
-      const tripData = JSON.stringify(
-        MOCK_TRIPS.find((t) => t.id === tripId)
-      );
       router.push({
-        pathname: '/history/details',
-        params: { tripData },
+        pathname: '/(passenger)/history/details',
+        params: { tripId },
       });
     },
     [router]
@@ -171,12 +136,12 @@ export default function HistoryScreen() {
 
   const renderEmpty = useCallback(
     () => (
-      loading ? null : ( // No mostrar nada si está cargando
+      loading ? null : ( 
         <View style={styles.emptyContainer}>
           <Ionicons name="car-outline" size={64} color={Colors.grey[400]} />
           <Text style={styles.emptyTitle}>No hay viajes</Text>
           <Text style={styles.emptySubtitle}>
-            Tus viajes {selectedFilter !== 'all' ? selectedFilter : ''} aparecerán aquí
+            Tus viajes {selectedFilter !== 'all' ? ` ${selectedFilter}s` : ''} aparecerán aquí
           </Text>
           <Button
             title="Solicitar Viaje"
