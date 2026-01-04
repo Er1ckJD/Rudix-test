@@ -1,36 +1,15 @@
+// src/hooks/useAuth.tsx
 import React, { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { apiClient } from '@/api/client';
 import { saveToken, deleteToken, getToken } from '@/api/storage';
 import { AxiosError } from 'axios';
 import { Alert } from 'react-native';
-
-// Define user role
-type UserRole = 'user' | 'driver';
-
-// Update User interface
-interface User {
-  id: string;
-  nombres: string;
-  apellidos: string;
-  email: string;
-  telefono: string;
-  // Let's assume the API will provide the roles a user has
-  roles: UserRole[]; 
-}
-
-interface AuthData {
-    nombres?: string;
-    apellidos?: string;
-    telefono?: string;
-    email?: string;
-    password?: string;
-}
+import { User, UserRole, AuthData, AuthResponse } from '@/types/user';
 
 interface SendOtpResponse {
     message: string;
 }
 
-// Define the shape of the context
 interface AuthContextType {
     user: User | null;
     token: string | null;
@@ -44,45 +23,42 @@ interface AuthContextType {
     verifyCode: (phone: string, code: string) => Promise<{ success: boolean; error?: string; }>;
     logout: () => void;
     switchActiveRole: (role: UserRole) => void;
-    // mockLogin se elimina de la interfaz pública del contexto
+    clearError: () => void;
 }
 
-// Create the context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Create the provider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
-    const [activeRole, setActiveRole] = useState<UserRole>('user'); // Default role
+    const [activeRole, setActiveRole] = useState<UserRole>('user');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // This effect runs once on startup to check for an existing token
+    // Cargar usuario al iniciar
     useEffect(() => {
         const loadUserFromToken = async () => {
             setLoading(true);
             try {
                 const storedToken = await getToken();
                 if (storedToken) {
-                    // The interceptor in apiClient automatically adds the token to headers.
                     setToken(storedToken);
                     
-                    // Fetch user data with the token
-                    const response = await apiClient.get('/auth/me');
+                    const response = await apiClient.get<{ user: User }>('/auth/me');
                     
-                    if (response.data && response.data.user) {
+                    if (response.data?.user) {
                         setUser(response.data.user);
+                        // Establecer rol activo basado en roles disponibles
+                        if (response.data.user.roles.includes('driver')) {
+                            setActiveRole('driver');
+                        }
                     } else {
-                        // Handle cases where the token is valid but no user data is returned
                         throw new Error('User data not found in response.');
                     }
                 }
             } catch (e) {
-                // This catch block will handle errors from getToken, apiClient.get, or the explicit throw.
-                // It's likely the token is invalid or expired.
                 console.error("Session restore failed:", e);
-                await deleteToken(); // Clean up invalid token
+                await deleteToken();
                 setToken(null);
                 setUser(null);
             } finally {
@@ -93,7 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         loadUserFromToken();
     }, []);
 
-    const handleError = (err: unknown) => {
+    const handleError = (err: unknown): string => {
         let errorMessage = 'An unknown error occurred.';
         if (err instanceof AxiosError) {
             errorMessage = err.response?.data?.message || 'Error de conexión';
@@ -102,16 +78,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         Alert.alert('Error de Autenticación', errorMessage);
-        
         return errorMessage;
     };
 
-    // --- Authentication Functions ---
+    const clearError = () => setError(null);
 
     const register = async (data: AuthData) => {
         setError(null);
         try {
-            const response = await apiClient.post('/auth/register', data);
+            const response = await apiClient.post<AuthResponse>('/auth/register', data);
             const { user: userData, token: authToken } = response.data;
             await saveToken(authToken);
             setUser(userData);
@@ -128,10 +103,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const login = async (email: string, password: string) => {
         setError(null);
         try {
-            const response = await apiClient.post('/auth/login', { email, password });
+            const response = await apiClient.post<AuthResponse>('/auth/login', { email, password });
             const { user: userData, token: authToken } = response.data;
             await saveToken(authToken);
-            setUser(userData);
+setUser(userData);
             setToken(authToken);
             setActiveRole('user');
             return { success: true };
@@ -145,11 +120,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const verifyPhone = async (phone: string) => {
         setError(null);
         try {
-            const response = await apiClient.post('/auth/send-otp', { telefono: phone });
+            const response = await apiClient.post<SendOtpResponse>('/auth/send-otp', { telefono: phone });
             return { success: true, data: response.data };
         } catch (err) {
             const errorMessage = handleError(err);
-setError(errorMessage);
+            setError(errorMessage);
             return { success: false, error: errorMessage };
         }
     };
@@ -157,7 +132,7 @@ setError(errorMessage);
     const verifyCode = async (phone: string, code: string) => {
         setError(null);
         try {
-            const response = await apiClient.post('/auth/verify-otp', { telefono: phone, code });
+            const response = await apiClient.post<AuthResponse>('/auth/verify-otp', { telefono: phone, code });
             const { user: userData, token: authToken } = response.data;
             await saveToken(authToken);
             setUser(userData);
@@ -175,10 +150,9 @@ setError(errorMessage);
         await deleteToken();
         setUser(null);
         setToken(null);
-        setActiveRole('user'); // Reset to default on logout
+        setActiveRole('user');
     };
     
-    // --- Role Switching Function ---
     const switchActiveRole = (role: UserRole) => {
         if (user?.roles.includes(role)) {
             setActiveRole(role);
@@ -187,7 +161,7 @@ setError(errorMessage);
         }
     };
     
-    // --- Dev-only functionality ---
+    // Mock login solo en desarrollo
     useEffect(() => {
         if (__DEV__) {
             const mockLogin = async () => {
@@ -200,7 +174,11 @@ setError(errorMessage);
                         apellidos: 'User',
                         email: 'dev@rudix.com',
                         telefono: '9876543210',
-                        roles: ['user', 'driver']
+                        roles: ['user', 'driver'],
+                        photoUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
+                        rating: 4.95,
+                        totalTrips: 124,
+                        fidelityLevel: 'plus',
                     };
                     const mockToken = 'dev-mock-token';
 
@@ -208,26 +186,23 @@ setError(errorMessage);
                     setUser(mockUser);
                     setToken(mockToken);
                     setActiveRole('user');
-                    console.log('Mock Login Successful! User set.');
+                    console.log('✅ Mock Login Successful!');
                 } catch (err) {
                     const errorMessage = handleError(err);
                     setError(errorMessage);
-                    console.error('Mock Login Failed:', errorMessage);
+                    console.error('❌ Mock Login Failed:', errorMessage);
                 }
             };
             
-            // Expose mock login function globally in development
             (global as any).mockLogin = mockLogin;
-            console.log('>> Mock login function available as `global.mockLogin()`');
+            console.log('🔧 Mock login available: global.mockLogin()');
 
-            // Cleanup on unmount
             return () => {
                 delete (global as any).mockLogin;
             };
         }
-    }, []); // Empty dependency array, runs only once on mount
+    }, []);
 
-    // The value provided to the context consumers
     const value = {
         user,
         token,
@@ -241,12 +216,12 @@ setError(errorMessage);
         verifyCode,
         logout,
         switchActiveRole,
+        clearError,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// Create the custom hook for consuming the context
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {
