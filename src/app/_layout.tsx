@@ -13,47 +13,14 @@ import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { ColorSchemeProvider, useColorScheme } from '@/hooks/use-color-scheme';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
+import { useAuthNavigation } from '@/hooks/useAuthNavigation';
+
 // Layout interno con acceso a auth
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-  const { user, loading, activeRole } = useAuth();
-  const segments = useSegments();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (loading) return;
-
-    const inAuthGroup = segments[0] === '(auth)';
-    const inOnboardingGroup = segments[0] === '(onboarding)';
-    const inPassengerGroup = segments[0] === '(passenger)';
-    const inDriverGroup = segments[0] === '(driver)';
-
-    // Usuario NO autenticado
-    if (!user) {
-      if (!inAuthGroup && !inOnboardingGroup) {
-        router.replace('/(auth)');
-      }
-      return;
-    }
-
-    // Usuario autenticado
-    if (inAuthGroup) {
-      // Redirigir según rol activo
-      if (activeRole === 'driver') {
-        router.replace('/(driver)/(home)');
-      } else {
-        router.replace('/(passenger)/(home)');
-      }
-      return;
-    }
-
-    // Validar acceso a sección conductor
-    if (inDriverGroup && !user.roles?.includes('driver')) {
-      // No tiene permiso, regresar a pasajero
-      router.replace('/(passenger)/(home)');
-    }
-
-  }, [user, loading, segments, activeRole]);
+  const { loading } = useAuth();
+  
+  useAuthNavigation();
 
   if (loading) {
     return (

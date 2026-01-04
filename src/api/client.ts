@@ -1,13 +1,8 @@
 // src/api/client.ts
-// ========================================
-// API CLIENT SIMPLIFICADO PARA FRONTEND
-// Ready para conectar backend en el futuro
-// ========================================
-
-import axios from 'axios';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { storage } from '@/utils/storage';
+import { AuthService } from './services/auth.service';
 
-// Configuración simple - cambiar cuando tengas backend
 const BASE_URL = __DEV__ 
   ? 'http://localhost:3000' // Para pruebas locales con backend
   : 'https://api.rudix.com'; // Para producción futura
@@ -20,9 +15,6 @@ export const apiClient = axios.create({
   },
 });
 
-// ============================================
-// INTERCEPTOR - Token automático
-// ============================================
 apiClient.interceptors.request.use(
   async (config) => {
     const token = await storage.getSecureItem('userToken');
@@ -39,9 +31,21 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ============================================
-// RESPONSE - Manejo básico
-// ============================================
+let isRefreshing = false;
+let failedQueue: any[] = [];
+
+const processQueue = (error: any, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+
+  failedQueue = [];
+};
+
 apiClient.interceptors.response.use(
   (response) => {
     if (__DEV__) {
@@ -49,25 +53,61 @@ apiClient.interceptors.response.use(
     }
     return response;
   },
-  (error) => {
-    if (__DEV__) {
-      console.log('❌ API Error:', error.response?.status || error.message);
+  async (error: AxiosError) => {
+    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        return new Promise(function(resolve, reject) {
+          failedQueue.push({resolve, reject});
+        }).then(token => {
+          if(originalRequest.headers){
+            originalRequest.headers['Authorization'] = 'Bearer ' + token;
+          }
+          return apiClient(originalRequest);
+        }).catch(err => {
+          return Promise.reject(err);
+        })
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const refreshToken = await storage.getSecureItem('refreshToken');
+        if (!refreshToken) {
+            throw new Error('no refresh token');
+        }
+        const { token: newToken, refreshToken: newRefreshToken } = await AuthService.refreshToken(refreshToken);
+        await storage.setSecureItem('userToken', newToken);
+        await storage.setSecureItem('refreshToken', newRefreshToken);
+        apiClient.defaults.headers.common['Authorization'] = 'Bearer ' + newToken;
+        if(originalRequest.headers){
+          originalRequest.headers['Authorization'] = 'Bearer ' + newToken;
+        }
+        processQueue(null, newToken);
+        return apiClient(originalRequest);
+      } catch (e) {
+        processQueue(e, null);
+        AuthService.logout();
+        return Promise.reject(e);
+      } finally {
+        isRefreshing = false;
+      }
     }
+
+    if (__DEV__) {
+        console.log('❌ API Error:', error.response?.status || error.message);
+    }
+    
     return Promise.reject(error);
   }
 );
 
-// ============================================
-// HELPER: Check si estamos en modo mock
-// ============================================
 export const isMockMode = () => {
-  // Puedes cambiar esto a false cuando tengas backend real
   return __DEV__ || !BASE_URL.includes('api.rudix.com');
 };
 
-// ============================================
-// HELPER: Manejo de errores simple
-// ============================================
 export function getErrorMessage(error: any): string {
   if (error.response?.data?.message) {
     return error.response.data.message;
