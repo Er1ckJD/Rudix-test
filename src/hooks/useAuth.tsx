@@ -1,10 +1,10 @@
 // src/hooks/useAuth.tsx
 import React, { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import { apiClient } from '@/api/client';
-import { saveToken, deleteToken, getToken } from '@/api/storage';
-import { AxiosError } from 'axios';
+import { AuthService } from '@/api/services/auth.service';
+import { storage } from '@/utils/storage';
 import { Alert } from 'react-native';
-import { User, UserRole, AuthData, AuthResponse } from '@/types/user';
+import { User, UserRole, AuthData } from '@/types/user';
+import { LoginResponse } from '@/types/api';
 
 interface SendOtpResponse {
     message: string;
@@ -28,6 +28,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const TOKEN_KEY = 'userToken';
+const REFRESH_TOKEN_KEY = 'refreshToken';
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
@@ -40,25 +43,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const loadUserFromToken = async () => {
             setLoading(true);
             try {
-                const storedToken = await getToken();
+                const storedToken = await storage.getSecureItem(TOKEN_KEY);
                 if (storedToken) {
                     setToken(storedToken);
                     
-                    const response = await apiClient.get<{ user: User }>('/auth/me');
+                    const response = await AuthService.getCurrentUser();
                     
-                    if (response.data?.user) {
-                        setUser(response.data.user);
+                    if (response.user) {
+                        setUser(response.user);
                         // Establecer rol activo basado en roles disponibles
-                        if (response.data.user.roles.includes('driver')) {
+                        if (response.user.roles.includes('driver')) {
                             setActiveRole('driver');
                         }
                     } else {
                         throw new Error('User data not found in response.');
                     }
                 }
-            } catch (e) {
-                console.error("Session restore failed:", e);
-                await deleteToken();
+            } catch (e: any) {
+                console.error("Session restore failed:", e.message);
+                await AuthService.logout();
                 setToken(null);
                 setUser(null);
             } finally {
@@ -69,85 +72,68 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         loadUserFromToken();
     }, []);
 
-    const handleError = (err: unknown): string => {
-        let errorMessage = 'An unknown error occurred.';
-        if (err instanceof AxiosError) {
-            errorMessage = err.response?.data?.message || 'Error de conexión';
-        } else if (err instanceof Error) {
-            errorMessage = err.message;
-        }
-
-        Alert.alert('Error de Autenticación', errorMessage);
-        return errorMessage;
-    };
-
     const clearError = () => setError(null);
 
+    const processAuthResponse = async (response: LoginResponse) => {
+        const { user: userData, token: authToken, refreshToken } = response;
+        await storage.setSecureItem(TOKEN_KEY, authToken);
+        if (refreshToken) {
+            await storage.setSecureItem(REFRESH_TOKEN_KEY, refreshToken);
+        }
+        setUser(userData);
+        setToken(authToken);
+        setActiveRole('user');
+    };
+    
     const register = async (data: AuthData) => {
         setError(null);
         try {
-            const response = await apiClient.post<AuthResponse>('/auth/register', data);
-            const { user: userData, token: authToken } = response.data;
-            await saveToken(authToken);
-            setUser(userData);
-            setToken(authToken);
-            setActiveRole('user');
+            const response = await AuthService.register(data);
+            await processAuthResponse(response);
             return { success: true };
-        } catch (err) {
-            const errorMessage = handleError(err);
-            setError(errorMessage);
-            return { success: false, error: errorMessage };
+        } catch (err: any) {
+            setError(err.message);
+            return { success: false, error: err.message };
         }
     };
 
     const login = async (email: string, password: string) => {
         setError(null);
         try {
-            const response = await apiClient.post<AuthResponse>('/auth/login', { email, password });
-            const { user: userData, token: authToken } = response.data;
-            await saveToken(authToken);
-setUser(userData);
-            setToken(authToken);
-            setActiveRole('user');
+            const response = await AuthService.login({ email, password });
+            await processAuthResponse(response);
             return { success: true };
-        } catch (err) {
-            const errorMessage = handleError(err);
-            setError(errorMessage);
-            return { success: false, error: errorMessage };
+        } catch (err: any) {
+            setError(err.message);
+            return { success: false, error: err.message };
         }
     };
 
     const verifyPhone = async (phone: string) => {
         setError(null);
         try {
-            const response = await apiClient.post<SendOtpResponse>('/auth/send-otp', { telefono: phone });
-            return { success: true, data: response.data };
-        } catch (err) {
-            const errorMessage = handleError(err);
-            setError(errorMessage);
-            return { success: false, error: errorMessage };
+            const response = await AuthService.sendOTP({ telefono: phone });
+            return { success: true, data: response };
+        } catch (err: any) {
+            setError(err.message);
+            return { success: false, error: err.message };
         }
     };
 
     const verifyCode = async (phone: string, code: string) => {
         setError(null);
         try {
-            const response = await apiClient.post<AuthResponse>('/auth/verify-otp', { telefono: phone, code });
-            const { user: userData, token: authToken } = response.data;
-            await saveToken(authToken);
-            setUser(userData);
-            setToken(authToken);
-            setActiveRole('user');
+            const response = await AuthService.verifyOTP({ telefono: phone, code });
+            await processAuthResponse(response);
             return { success: true };
-        } catch (err) {
-            const errorMessage = handleError(err);
-            setError(errorMessage);
-            return { success: false, error: errorMessage };
+        } catch (err: any) {
+            setError(err.message);
+            return { success: false, error: err.message };
         }
     };
 
     const logout = async () => {
-        await deleteToken();
+        await AuthService.logout();
         setUser(null);
         setToken(null);
         setActiveRole('user');
@@ -161,48 +147,6 @@ setUser(userData);
         }
     };
     
-    // Mock login solo en desarrollo
-    useEffect(() => {
-        if (__DEV__) {
-            const mockLogin = async () => {
-                console.log('Attempting mock login...');
-                setError(null);
-                try {
-                    const mockUser: User = {
-                        id: 'dev-mock-id',
-                        nombres: 'Dev',
-                        apellidos: 'User',
-                        email: 'dev@rudix.com',
-                        telefono: '9876543210',
-                        roles: ['user', 'driver'],
-                        photoUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
-                        rating: 4.95,
-                        totalTrips: 124,
-                        fidelityLevel: 'plus',
-                    };
-                    const mockToken = 'dev-mock-token';
-
-                    await saveToken(mockToken);
-                    setUser(mockUser);
-                    setToken(mockToken);
-                    setActiveRole('user');
-                    console.log('✅ Mock Login Successful!');
-                } catch (err) {
-                    const errorMessage = handleError(err);
-                    setError(errorMessage);
-                    console.error('❌ Mock Login Failed:', errorMessage);
-                }
-            };
-            
-            (global as any).mockLogin = mockLogin;
-            console.log('🔧 Mock login available: global.mockLogin()');
-
-            return () => {
-                delete (global as any).mockLogin;
-            };
-        }
-    }, []);
-
     const value = {
         user,
         token,

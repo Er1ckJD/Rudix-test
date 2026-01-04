@@ -1,9 +1,16 @@
-import axios from 'axios';
-import axiosRetry from 'axios-retry';
-import { storage } from './storage';
+// src/api/client.ts
+// ========================================
+// API CLIENT SIMPLIFICADO PARA FRONTEND
+// Ready para conectar backend en el futuro
+// ========================================
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://api.example.com';
-console.log('API URL:', BASE_URL);
+import axios from 'axios';
+import { storage } from '@/utils/storage';
+
+// Configuración simple - cambiar cuando tengas backend
+const BASE_URL = __DEV__ 
+  ? 'http://localhost:3000' // Para pruebas locales con backend
+  : 'https://api.rudix.com'; // Para producción futura
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -13,69 +20,62 @@ export const apiClient = axios.create({
   },
 });
 
-// Función mock para refrescar el token
-async function refreshAuthToken() {
-    // TODO: Implementar refresh real cuando el backend esté listo
-    console.log('Attempting to refresh auth token...');
-    if (__DEV__) {
-      const newToken = 'mock-refreshed-user-token';
-      await storage.setSecureItem('userToken', newToken);
-      return newToken;
-    }
-    throw new Error('Refresh token not implemented');
-}
-
-
-// Interceptor para inyectar el token en cada petición
+// ============================================
+// INTERCEPTOR - Token automático
+// ============================================
 apiClient.interceptors.request.use(
   async (config) => {
-    try {
-      const token = await storage.getSecureItem('userToken');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    } catch (e) {
-      console.error('Failed to get token from secure store', e);
+    const token = await storage.getSecureItem('userToken');
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    if (__DEV__) {
+      console.log('📡 API Request:', config.method?.toUpperCase(), config.url);
+    }
+    
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Interceptor para manejar respuestas y reintentar en caso de 401
+// ============================================
+// RESPONSE - Manejo básico
+// ============================================
 apiClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    // Si el error es 401 y no es un reintento
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        const newToken = await refreshAuthToken();
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
-        // Reintentar la petición original con el nuevo token
-        return apiClient(originalRequest);
-      } catch (refreshError) {
-        // Si el refresh falla, desloguear al usuario o manejar el error
-        console.error('Token refresh failed', refreshError);
-        // Aquí podrías redirigir al login
-        return Promise.reject(refreshError);
-      }
+  (response) => {
+    if (__DEV__) {
+      console.log('✅ API Response:', response.status);
+    }
+    return response;
+  },
+  (error) => {
+    if (__DEV__) {
+      console.log('❌ API Error:', error.response?.status || error.message);
     }
     return Promise.reject(error);
   }
 );
 
+// ============================================
+// HELPER: Check si estamos en modo mock
+// ============================================
+export const isMockMode = () => {
+  // Puedes cambiar esto a false cuando tengas backend real
+  return __DEV__ || !BASE_URL.includes('api.rudix.com');
+};
 
-// Configuración de reintentos para fallos de red o errores 5xx
-axiosRetry(apiClient, { 
-    retries: 3, // Número de reintentos
-    retryDelay: (retryCount) => {
-        return retryCount * 1000; // 1s, 2s, 3s
-    },
-    retryCondition: (error) => {
-        return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.response?.status >= 500;
-    }
-});
+// ============================================
+// HELPER: Manejo de errores simple
+// ============================================
+export function getErrorMessage(error: any): string {
+  if (error.response?.data?.message) {
+    return error.response.data.message;
+  }
+  if (error.message) {
+    return error.message;
+  }
+  return 'Error desconocido';
+}
+
+export default apiClient;

@@ -1,55 +1,78 @@
 import { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { IMessage } from 'react-native-gifted-chat';
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+import { ENV } from '@/config/env';
+import { Alert } from 'react-native';
 
 export function useChat(tripId: string) {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isConnected, setIsConnected] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const socket = useRef<Socket | null>(null);
 
   useEffect(() => {
     if (!tripId) return;
 
-    // Conectar al socket
-    socket.current = io(API_URL, {
+    // Opciones de conexión del socket
+    const socketOptions = {
+        reconnectionAttempts: 5,
+        reconnectionDelay: 2000,
         query: { tripId }
-    });
+    };
 
-    socket.current.on('connect', () => {
+    // Conectar al socket
+    socket.current = io(ENV.socketUrl, socketOptions);
+
+    const handleConnect = () => {
         setIsConnected(true);
-        console.log('Socket connected');
-    });
+        setError(null);
+        console.log('Socket connected successfully');
+        socket.current?.emit('join-trip', tripId);
+    };
 
-    socket.current.on('disconnect', () => {
+    const handleDisconnect = (reason: Socket.DisconnectReason) => {
         setIsConnected(false);
-        console.log('Socket disconnected');
-    });
-    
-    // Cargar mensajes iniciales (mock)
-    socket.current.on('initial-messages', (initialMessages: IMessage[]) => {
-        setMessages(initialMessages.reverse());
-    });
+        console.log(`Socket disconnected: ${reason}`);
+        if (reason === 'io server disconnect') {
+            // El servidor cerró la conexión, no intentar reconectar.
+            socket.current?.connect();
+        }
+        // Para otras razones (e.g., 'transport close'), la reconexión es automática.
+    };
 
-    // Escuchar por nuevos mensajes
-    socket.current.on('new-message', (message: IMessage) => {
+    const handleConnectError = (err: Error) => {
+        console.error('Socket connection error:', err.message);
+        setError(`Error de conexión: ${err.message}`);
+        Alert.alert('Error de Chat', 'No se pudo conectar al servidor de chat. Intentando reconectar...');
+    };
+
+    const handleInitialMessages = (initialMessages: IMessage[]) => {
+        setMessages(initialMessages.reverse());
+    };
+
+    const handleNewMessage = (message: IMessage) => {
       setMessages((previousMessages) =>
         [message, ...previousMessages]
       );
-    });
+    };
 
-    // Unirse a la sala del viaje
-    socket.current.emit('join-trip', tripId);
+    // Asignar listeners
+    socket.current.on('connect', handleConnect);
+    socket.current.on('disconnect', handleDisconnect);
+    socket.current.on('connect_error', handleConnectError);
+    socket.current.on('initial-messages', handleInitialMessages);
+    socket.current.on('new-message', handleNewMessage);
 
     // Limpieza al desmontar
     return () => {
       if (socket.current) {
+        console.log('Cleaning up chat socket...');
         socket.current.emit('leave-trip', tripId);
-        socket.current.off('connect');
-        socket.current.off('disconnect');
-        socket.current.off('initial-messages');
-        socket.current.off('new-message');
+        socket.current.off('connect', handleConnect);
+        socket.current.off('disconnect', handleDisconnect);
+        socket.current.off('connect_error', handleConnectError);
+        socket.current.off('initial-messages', handleInitialMessages);
+        socket.current.off('new-message', handleNewMessage);
         socket.current.disconnect();
         socket.current = null;
       }
@@ -59,8 +82,10 @@ export function useChat(tripId: string) {
   const sendMessage = (message: IMessage) => {
     if (socket.current && isConnected) {
         socket.current.emit('send-message', message);
+    } else {
+        Alert.alert('No Conectado', 'No puedes enviar mensajes porque no estás conectado al chat.');
     }
   };
 
-  return { messages, isConnected, sendMessage };
+  return { messages, isConnected, error, sendMessage };
 }
