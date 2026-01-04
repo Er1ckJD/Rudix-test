@@ -1,7 +1,6 @@
 // src/app/(passenger)/(home)/_layout.tsx
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -14,7 +13,6 @@ export default function PassengerHomeLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-        tabBarButton: HapticTab,
         tabBarStyle: {
           backgroundColor: colorScheme === 'dark' ? Colors.dark.background : Colors.light.background,
           borderTopColor: colorScheme === 'dark' ? Colors.grey[1400] : Colors.grey[200],
