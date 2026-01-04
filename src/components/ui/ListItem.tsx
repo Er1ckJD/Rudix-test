@@ -24,30 +24,30 @@ interface ListItemProps {
   icon?: keyof typeof Ionicons.glyphMap;
   title: string;
   subtitle?: string;
-  
+
   // Elemento a la derecha (chevron, switch, badge, etc.)
   rightElement?: React.ReactNode;
-  
+
   // Interacción
   onPress?: () => void;
   disabled?: boolean;
-  
+
   // Posición en la lista (para bordes redondeados)
   isFirst?: boolean;
   isLast?: boolean;
-  
+
   // Estilos personalizados
   style?: ViewStyle;
   titleStyle?: TextStyle;
   subtitleStyle?: TextStyle;
-  
+
   // Variantes
   variant?: 'default' | 'danger' | 'success';
 }
 
 /**
  * ListItem - Componente reutilizable para items de lista
- * 
+ *
  * Uso:
  * ```tsx
  * <ListItem
@@ -184,7 +184,7 @@ function ItemContent({
  */
 function getIconColor(variant: ListItemProps['variant'], disabled: boolean): string {
   if (disabled) return Colors.grey[400];
-  
+
   switch (variant) {
     case 'danger':
       return Colors.semantic.error;
@@ -267,7 +267,6 @@ const styles = StyleSheet.create({
   // Variantes de texto
   dangerText: {
     color: Colors.semantic.error,
-.
   },
   successText: {
     color: Colors.semantic.success,
@@ -297,7 +296,7 @@ export function ChevronRight({ color = Colors.grey[400] }: { color?: string }) {
  */
 export function Badge({ count, color = Colors.semantic.error }: { count: number; color?: string }) {
   if (count === 0) return null;
-  
+
   return (
     <View style={[badgeStyles.container, { backgroundColor: color }]}>
       <Text style={badgeStyles.text}>
