@@ -2,6 +2,7 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
 import CustomDrawerContent from '@/components/navigation/CustomDrawerContent';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function DriverLayout() {
   return (
@@ -23,6 +24,7 @@ export default function DriverLayout() {
           options={{
             drawerLabel: 'Inicio',
             title: 'Modo Conductor',
+            drawerIcon: ({ color, size }) => <Ionicons name="home-outline" size={size} color={color} />,
           }}
         />
 
@@ -40,6 +42,7 @@ export default function DriverLayout() {
           options={{
             drawerLabel: 'Ganancias',
             title: 'Mi Billetera',
+            drawerIcon: ({ color, size }) => <Ionicons name="wallet-outline" size={size} color={color} />,
           }}
         />
 
@@ -49,6 +52,7 @@ export default function DriverLayout() {
           options={{
             drawerLabel: 'Fidelity',
             title: 'RuDix Fidelity',
+            drawerIcon: ({ color, size }) => <Ionicons name="shield-checkmark-outline" size={size} color={color} />,
           }}
         />
 
@@ -58,6 +62,7 @@ export default function DriverLayout() {
           options={{
             drawerLabel: 'Configuración',
             title: 'Configuración',
+            drawerIcon: ({ color, size }) => <Ionicons name="options-outline" size={size} color={color} />,
           }}
         />
 
@@ -67,6 +72,7 @@ export default function DriverLayout() {
           options={{
             drawerLabel: 'Ayuda',
             title: 'Centro de Ayuda',
+            drawerIcon: ({ color, size }) => <Ionicons name="help-buoy-outline" size={size} color={color} />,
           }}
         />
       </Drawer>

@@ -11,11 +11,11 @@ export default function PassengerHomeLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: Colors.brand.primary,
         headerShown: false,
         tabBarStyle: {
           backgroundColor: colorScheme === 'dark' ? Colors.dark.background : Colors.light.background,
-          borderTopColor: colorScheme === 'dark' ? Colors.grey[1400] : Colors.grey[200],
+          borderTopColor: colorScheme === 'dark' ? Colors.grey[700] : Colors.grey[200],
         },
       }}
     >

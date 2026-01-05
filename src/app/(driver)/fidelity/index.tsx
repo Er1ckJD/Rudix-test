@@ -2,18 +2,18 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Colors, Shadows } from '@/constants/theme';
+import { Colors, Shadows, hexWithOpacity } from '@/constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function FidelityScreen() {
   const router = useRouter();
-  const colorScheme = useColorScheme();
+  const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
 
   const BenefitCard = ({ icon, title, desc, locked }: any) => (
     <View style={[styles.benefitCard, isDark && styles.benefitCardDark, locked && styles.benefitLocked]}>
-        <View style={[styles.benefitIcon, { backgroundColor: locked ? Colors.grey[isDark ? 800 : 200] : Colors.hexWithOpacity(Colors.brand.primary, 0.1) }]}>
+        <View style={[styles.benefitIcon, { backgroundColor: locked ? Colors.grey[isDark ? 800 : 200] : hexWithOpacity(Colors.brand.primary, 0.1) }]}>
             <MaterialCommunityIcons 
                 name={icon} 
                 size={24} 

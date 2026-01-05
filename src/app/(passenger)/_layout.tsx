@@ -2,6 +2,7 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
 import CustomDrawerContent from '@/components/navigation/CustomDrawerContent';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function PassengerLayout() {
   return (
@@ -23,6 +24,7 @@ export default function PassengerLayout() {
           options={{
             drawerLabel: 'Inicio',
             title: 'Inicio',
+            drawerIcon: ({ color, size }) => <Ionicons name="home-outline" size={size} color={color} />,
           }}
         />
         
@@ -40,6 +42,7 @@ export default function PassengerLayout() {
           options={{
             drawerLabel: 'Fidelity',
             title: 'RuDix Fidelity',
+            drawerIcon: ({ color, size }) => <Ionicons name="shield-checkmark-outline" size={size} color={color} />,
           }}
         />
 
@@ -49,6 +52,7 @@ export default function PassengerLayout() {
           options={{
             drawerLabel: 'Notificaciones',
             title: 'Notificaciones',
+            drawerIcon: ({ color, size }) => <Ionicons name="notifications-outline" size={size} color={color} />,
           }}
         />
 
@@ -58,6 +62,7 @@ export default function PassengerLayout() {
           options={{
             drawerLabel: 'Mi Perfil',
             title: 'Perfil',
+            drawerIcon: ({ color, size }) => <Ionicons name="person-outline" size={size} color={color} />,
           }}
         />
 
@@ -67,6 +72,7 @@ export default function PassengerLayout() {
           options={{
             drawerLabel: 'Seguridad',
             title: 'Seguridad',
+            drawerIcon: ({ color, size }) => <Ionicons name="shield-outline" size={size} color={color} />,
           }}
         />
 
@@ -76,6 +82,7 @@ export default function PassengerLayout() {
           options={{
             drawerLabel: 'Configuración',
             title: 'Configuración',
+            drawerIcon: ({ color, size }) => <Ionicons name="options-outline" size={size} color={color} />,
           }}
         />
 
@@ -85,6 +92,7 @@ export default function PassengerLayout() {
           options={{
             drawerLabel: 'Ayuda',
             title: 'Centro de Ayuda',
+            drawerIcon: ({ color, size }) => <Ionicons name="help-buoy-outline" size={size} color={color} />,
           }}
         />
       </Drawer>

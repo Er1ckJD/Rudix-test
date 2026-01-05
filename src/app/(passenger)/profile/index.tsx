@@ -190,5 +190,20 @@ const styles = StyleSheet.create({
   statItem: { alignItems: 'center', flex: 1 },
   statNumber: { fontSize: 18, fontWeight: 'bold', color: Colors.brand.primary },
   statLabel: { fontSize: 12, color: Colors.grey[600] },
-.
-.
+  statLabelDark: { color: Colors.grey[400] },
+  verticalLine: { width: 1, height: '100%', backgroundColor: Colors.grey[300] },
+  verticalLineDark: { backgroundColor: Colors.grey[700] },
+
+  formContainer: { paddingHorizontal: 20 },
+  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: Colors.light.text, marginBottom: 15 },
+  inputGroup: { marginBottom: 15 },
+  label: { fontSize: 13, color: Colors.grey[600], marginBottom: 5, marginLeft: 2 },
+  input: { backgroundColor: Colors.grey[100], borderRadius: 10, padding: 12, fontSize: 16, color: Colors.light.text, borderWidth: 1, borderColor: 'transparent' },
+  inputDark: { backgroundColor: Colors.dark.surface, color: Colors.dark.text },
+  inputDisabled: { color: Colors.grey[500], backgroundColor: 'transparent', borderColor: Colors.grey[300] },
+
+  logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 30, padding: 15, marginHorizontal: 20, borderRadius: 12, backgroundColor: hexWithOpacity(Colors.semantic.error, 0.1) },
+  logoutBtnDark: { backgroundColor: hexWithOpacity(Colors.semantic.error, 0.2) },
+  logoutText: { color: Colors.semantic.error, fontWeight: 'bold', marginLeft: 10 },
+  versionText: { textAlign: 'center', color: Colors.grey[500], fontSize: 12, marginTop: 20 },
+});
