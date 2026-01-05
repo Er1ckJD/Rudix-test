@@ -5,13 +5,14 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { useRouter, Stack } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import Toast from 'react-native-toast-message';
 
 type PaymentMethod = {
   id: string;
@@ -29,10 +30,12 @@ const MOCK_PAYMENT_METHODS: PaymentMethod[] = [
 export default function PassengerPaymentMethods() {
   const [paymentMethods, setPaymentMethods] = useState(MOCK_PAYMENT_METHODS);
   const router = useRouter();
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const renderItem = ({ item }: { item: PaymentMethod }) => (
     <LinearGradient
-        colors={item.isDefault ? ['#108A33', '#15B545'] : ['#333', '#555']}
+        colors={item.isDefault ? [Colors.brand.primary, Colors.brand.primaryLight] : isDark ? [Colors.grey[800], Colors.grey[700]] : [Colors.grey[900], Colors.grey[800]]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.card}
@@ -41,7 +44,7 @@ export default function PassengerPaymentMethods() {
             <FontAwesome5
                 name={item.brand.toLowerCase() === 'visa' ? 'cc-visa' : 'cc-mastercard'}
                 size={36}
-                color="white"
+                color={Colors.base.white}
             />
             {item.isDefault && (
                 <View style={styles.defaultBadge}>
@@ -52,21 +55,21 @@ export default function PassengerPaymentMethods() {
         <Text style={styles.cardNumber}>**** **** **** {item.last4}</Text>
         <View style={styles.cardFooter}>
             <Text style={styles.cardExp}>Expira: {item.exp}</Text>
-            <TouchableOpacity onPress={() => Alert.alert('Eliminar', 'Próximamente...')}>
-                <Ionicons name="trash-outline" size={22} color="white" />
+            <TouchableOpacity onPress={() => Toast.show({type: 'info', text1:'Próximamente...'})}>
+                <Ionicons name="trash-outline" size={22} color={Colors.base.white} />
             </TouchableOpacity>
         </View>
     </LinearGradient>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, isDark && styles.containerDark]}>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={styles.header}>
+      <View style={[styles.header, isDark && styles.headerDark]}>
         <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color={Colors.light.text} />
+            <Ionicons name="arrow-back" size={24} color={isDark ? Colors.dark.text : Colors.light.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Métodos de Pago</Text>
+        <Text style={[styles.headerTitle, isDark && styles.headerTitleDark]}>Métodos de Pago</Text>
         <View style={{width: 24}}/>
       </View>
 
@@ -78,16 +81,16 @@ export default function PassengerPaymentMethods() {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Ionicons name="wallet-outline" size={64} color={Colors.grey[400]}/>
-            <Text style={styles.emptyText}>Aún no tienes métodos de pago</Text>
-            <Text style={styles.emptySubtitle}>Agrega una tarjeta para tus viajes.</Text>
+            <Text style={[styles.emptyText, isDark && styles.emptyTextDark]}>Aún no tienes métodos de pago</Text>
+            <Text style={[styles.emptySubtitle, isDark && styles.emptySubtitleDark]}>Agrega una tarjeta para tus viajes.</Text>
           </View>
         }
       />
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => router.push('/profile/add-card')}
+        onPress={() => router.push('/(passenger)/profile/add-card')}
       >
-        <Ionicons name="add" size={24} color="white" />
+        <Ionicons name="add" size={24} color={Colors.base.white} />
         <Text style={styles.addButtonText}>Agregar Nueva Tarjeta</Text>
       </TouchableOpacity>
     </SafeAreaView>
@@ -97,7 +100,10 @@ export default function PassengerPaymentMethods() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors.grey[50],
+  },
+  containerDark: {
+    backgroundColor: Colors.dark.background,
   },
   header: {
     flexDirection: 'row',
@@ -105,12 +111,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
-    backgroundColor: 'white',
+    borderBottomColor: Colors.grey[200],
+    backgroundColor: Colors.base.white,
+  },
+  headerDark: {
+    borderBottomColor: Colors.dark.border,
+    backgroundColor: Colors.dark.surface,
   },
   headerTitle: {
       fontSize: Typography.size.lg,
       fontWeight: Typography.weight.bold,
+      color: Colors.light.text,
+  },
+  headerTitleDark: {
+      color: Colors.dark.text,
   },
   list: {
     padding: 20,
@@ -127,11 +141,13 @@ const styles = StyleSheet.create({
       marginTop: Spacing.md,
       color: Colors.grey[600],
   },
+  emptyTextDark: { color: Colors.grey[400] },
   emptySubtitle: {
     fontSize: Typography.size.base,
     color: Colors.grey[500],
     marginTop: Spacing.xs,
   },
+  emptySubtitleDark: { color: Colors.grey[500] },
   card: {
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
@@ -151,12 +167,12 @@ const styles = StyleSheet.create({
       borderRadius: BorderRadius.sm,
   },
   defaultBadgeText: {
-      color: 'white',
+      color: Colors.base.white,
       fontSize: Typography.size.xs,
       fontWeight: Typography.weight.bold,
   },
   cardNumber: {
-      color: 'white',
+      color: Colors.base.white,
       fontSize: Typography.size.lg,
       fontFamily: 'monospace',
       letterSpacing: 2,
@@ -168,7 +184,7 @@ const styles = StyleSheet.create({
       alignItems: 'center',
   },
   cardExp: {
-      color: 'white',
+      color: Colors.base.white,
       fontSize: Typography.size.sm,
   },
   addButton: {
@@ -182,7 +198,7 @@ const styles = StyleSheet.create({
     ...Shadows.md,
   },
   addButtonText: {
-    color: 'white',
+    color: Colors.base.white,
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 10,

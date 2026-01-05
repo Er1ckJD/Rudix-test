@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { Colors } from '@/constants/theme';
+import { Colors, Shadows } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -13,7 +13,7 @@ export default function DriverWelcomeScreen() {
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.header}>
             <TouchableOpacity onPress={() => router.back()}>
-                <Ionicons name="arrow-back" size={28} color="#000" />
+                <Ionicons name="arrow-back" size={28} color={Colors.base.black} />
             </TouchableOpacity>
         </View>
 
@@ -32,20 +32,20 @@ export default function DriverWelcomeScreen() {
         </View>
 
         <View style={styles.card}>
-            <Ionicons name="time-outline" size={24} color="#666" />
+            <Ionicons name="time-outline" size={24} color={Colors.light.textSecondary} />
             <Text style={styles.cardText}>Donde tu elijes tu propio horario laboral</Text>
         </View>
 
         <View style={styles.card}>
-            <Ionicons name="card-outline" size={24} color="#666" />
+            <Ionicons name="card-outline" size={24} color={Colors.light.textSecondary} />
             <Text style={styles.cardText}>Genera más ingreso que cualquier otra plataforma</Text>
         </View>
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.btn} onPress={() => router.push('/driver/register/personal-info')}>
+        <TouchableOpacity style={styles.btn} onPress={() => router.push('/(driver)/register/personal-info')}>
             <Text style={styles.btnText}>Únete</Text>
-            <Ionicons name="arrow-forward" size={20} color="#fff" />
+            <Ionicons name="arrow-forward" size={20} color={Colors.base.white} />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -53,19 +53,19 @@ export default function DriverWelcomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: Colors.base.white },
   scroll: { padding: 20 },
   header: { alignItems: 'flex-start', marginBottom: 20 },
-  title: { fontSize: 28, fontWeight: 'bold', color: Colors.light.primary, textAlign: 'center', marginBottom: 30 },
+  title: { fontSize: 28, fontWeight: 'bold', color: Colors.brand.primary, textAlign: 'center', marginBottom: 30 },
   heroImage: { width: '100%', height: 150, marginBottom: 30 },
   card: { 
-    flexDirection: 'column', alignItems: 'center', backgroundColor: '#fff', 
+    flexDirection: 'column', alignItems: 'center', backgroundColor: Colors.base.white, 
     padding: 15, borderRadius: 15, marginBottom: 15,
-    elevation: 3, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, shadowOffset:{width:0, height:2}
+    ...Shadows.md
   },
-  cardIcon: { fontSize: 24, fontWeight: 'bold', color: '#666' },
-  cardText: { textAlign: 'center', color: '#666', marginTop: 5, fontSize: 13 },
+  cardIcon: { fontSize: 24, fontWeight: 'bold', color: Colors.light.textSecondary },
+  cardText: { textAlign: 'center', color: Colors.light.textSecondary, marginTop: 5, fontSize: 13 },
   footer: { padding: 20 },
-  btn: { backgroundColor: Colors.light.primary, padding: 15, borderRadius: 30, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10 },
-  btnText: { color: '#fff', fontWeight: 'bold', fontSize: 18 },
+  btn: { backgroundColor: Colors.brand.primary, padding: 15, borderRadius: 30, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10 },
+  btnText: { color: Colors.base.white, fontWeight: 'bold', fontSize: 18 },
 });

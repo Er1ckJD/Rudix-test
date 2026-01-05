@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Colors } from '@/constants/theme';
@@ -45,7 +45,11 @@ export default function VehicleInfoScreen() {
 
   const onSubmit = (data: VehicleFormData) => {
     if (!carPhoto) {
-        Alert.alert("Foto Faltante", "Por favor, sube una foto de tu vehículo.");
+        Toast.show({
+            type: 'error',
+            text1: 'Foto Faltante',
+            text2: 'Por favor, sube una foto de tu vehículo.',
+        });
         return;
     }
     console.log(data);
@@ -66,6 +70,7 @@ export default function VehicleInfoScreen() {
                 <TextInput
                     style={[styles.input, error && styles.inputError]}
                     placeholder={placeholder}
+                    placeholderTextColor={Colors.grey[500]}
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
@@ -80,6 +85,11 @@ export default function VehicleInfoScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
+        <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="arrow-back" size={28} color={Colors.base.black} />
+            </TouchableOpacity>
+        </View>
         <Text style={styles.title}>
             Ingresa la Información de tu Vehículo {isLux ? 'Lux' : ''}
         </Text>
@@ -108,7 +118,7 @@ export default function VehicleInfoScreen() {
       <View style={styles.footer}>
         <TouchableOpacity style={styles.btn} onPress={handleSubmit(onSubmit)}>
             <Text style={styles.btnText}>Continuar</Text>
-            <Ionicons name="arrow-forward" size={20} color="#fff" />
+            <Ionicons name="arrow-forward" size={20} color={Colors.base.white} />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -116,16 +126,17 @@ export default function VehicleInfoScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: Colors.base.white },
   scroll: { padding: 20 },
-  title: { fontSize: 22, fontWeight: 'bold', color: Colors.light.primary, textAlign: 'center', marginBottom: 20 },
-  sectionTitle: { fontSize: 14, fontWeight: 'bold', color: '#666', textAlign: 'center', marginBottom: 15 },
+  header: { alignItems: 'flex-start', marginBottom: 20 },
+  title: { fontSize: 22, fontWeight: 'bold', color: Colors.brand.primary, textAlign: 'center', marginBottom: 20 },
+  sectionTitle: { fontSize: 14, fontWeight: 'bold', color: Colors.light.textSecondary, textAlign: 'center', marginBottom: 15 },
   photosRow: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 20 },
-  label: { fontSize: 14, fontWeight: 'bold', color: '#666', marginBottom: 10, textAlign: 'center' },
-  input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 10, padding: 12, backgroundColor: '#fff', fontSize: 12 },
-  inputError: { borderColor: 'red' },
-  errorText: { color: 'red', fontSize: 10, marginTop: 2, marginLeft: 5 },
-  footer: { padding: 20, borderTopWidth: 1, borderTopColor: '#eee' },
-  btn: { backgroundColor: Colors.light.primary, padding: 15, borderRadius: 30, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10 },
-  btnText: { color: '#fff', fontWeight: 'bold', fontSize: 18 },
+  label: { fontSize: 14, fontWeight: 'bold', color: Colors.light.textSecondary, marginBottom: 10, textAlign: 'center' },
+  input: { borderWidth: 1, borderColor: Colors.grey[300], borderRadius: 10, padding: 12, backgroundColor: Colors.base.white, fontSize: 12 },
+  inputError: { borderColor: Colors.semantic.error },
+  errorText: { color: Colors.semantic.error, fontSize: 10, marginTop: 2, marginLeft: 5 },
+  footer: { padding: 20, borderTopWidth: 1, borderTopColor: Colors.grey[200] },
+  btn: { backgroundColor: Colors.brand.primary, padding: 15, borderRadius: 30, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10 },
+  btnText: { color: Colors.base.white, fontWeight: 'bold', fontSize: 18 },
 });

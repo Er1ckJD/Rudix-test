@@ -1,5 +1,5 @@
 // src/app/(driver)/support/index.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -19,6 +19,8 @@ import {
   Shadows,
 } from '@/constants/theme';
 import ListItem from '@/components/ui/ListItem';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import Toast from 'react-native-toast-message';
 
 const FAQ_ITEMS = [
   'No recibí el pago de mi viaje',
@@ -30,19 +32,30 @@ const FAQ_ITEMS = [
 
 export default function SupportScreen() {
   const router = useRouter();
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const [searchQuery, setSearchQuery] = useState('');
 
   const renderChevron = () => (
     <Ionicons name="chevron-forward" size={20} color={Colors.grey[400]} />
   );
 
+  const showNotImplementedToast = () => {
+    Toast.show({
+      type: 'info',
+      text1: 'Función no implementada',
+      text2: 'Esta función estará disponible próximamente.',
+    });
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, isDark && styles.containerDark]}>
       <Stack.Screen
         options={{
           title: 'Centro de Ayuda',
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: Colors.light.surface },
-          headerTintColor: Colors.light.text,
+          headerStyle: { backgroundColor: isDark ? Colors.dark.surface : Colors.light.surface },
+          headerTintColor: isDark ? Colors.dark.text : Colors.light.text,
           headerTitleStyle: {
             fontSize: Typography.size.lg,
             fontWeight: Typography.weight.semibold,
@@ -52,7 +65,7 @@ export default function SupportScreen() {
               <Ionicons
                 name="arrow-back"
                 size={24}
-                color={Colors.light.text}
+                color={isDark ? Colors.dark.text : Colors.light.text}
               />
             </TouchableOpacity>
           ),
@@ -61,7 +74,7 @@ export default function SupportScreen() {
 
       <ScrollView contentContainerStyle={styles.scroll}>
         {/* Search Bar */}
-        <View style={styles.searchContainer}>
+        <View style={[styles.searchContainer, isDark && styles.searchContainerDark]}>
           <Ionicons
             name="search"
             size={20}
@@ -70,14 +83,17 @@ export default function SupportScreen() {
           />
           <TextInput
             placeholder="¿Cómo podemos ayudarte?"
-            style={styles.searchInput}
+            placeholderTextColor={Colors.grey[500]}
+            style={[styles.searchInput, isDark && styles.searchInputDark]}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
           />
         </View>
 
         {/* Quick Actions */}
-        <Text style={styles.sectionTitle}>Contacto Directo</Text>
+        <Text style={[styles.sectionTitle, isDark && styles.sectionTitleDark]}>Contacto Directo</Text>
         <View style={styles.contactRow}>
-          <TouchableOpacity style={styles.contactCard}>
+          <TouchableOpacity style={[styles.contactCard, isDark && styles.cardDark]} onPress={showNotImplementedToast}>
             <View
               style={[
                 styles.iconCircle,
@@ -90,10 +106,10 @@ export default function SupportScreen() {
                 color={Colors.social.whatsapp}
               />
             </View>
-            <Text style={styles.contactLabel}>Chat en Vivo</Text>
+            <Text style={[styles.contactLabel, isDark && styles.contactLabelDark]}>Chat en Vivo</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.contactCard}>
+          <TouchableOpacity style={[styles.contactCard, isDark && styles.cardDark]} onPress={showNotImplementedToast}>
             <View
               style={[
                 styles.iconCircle,
@@ -106,27 +122,27 @@ export default function SupportScreen() {
                 color={Colors.semantic.error}
               />
             </View>
-            <Text style={styles.contactLabel}>Línea de Emergencia</Text>
+            <Text style={[styles.contactLabel, isDark && styles.contactLabelDark]}>Línea de Emergencia</Text>
           </TouchableOpacity>
         </View>
 
         {/* Last Trip */}
-        <View style={styles.tripCard}>
+        <View style={[styles.tripCard, isDark && styles.cardDark]}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={styles.tripTitle}>Problema con último viaje</Text>
-            <Text style={styles.tripDate}>Hoy, 10:30 AM</Text>
+            <Text style={[styles.tripTitle, isDark && styles.tripTitleDark]}>Problema con último viaje</Text>
+            <Text style={[styles.tripDate, isDark && styles.tripDateDark]}>Hoy, 10:30 AM</Text>
           </View>
-          <Text style={styles.tripRoute}>
+          <Text style={[styles.tripRoute, isDark && styles.tripRouteDark]}>
             Centro Histórico → Plaza Las Américas
           </Text>
-          <TouchableOpacity style={styles.reportBtn}>
+          <TouchableOpacity style={styles.reportBtn} onPress={showNotImplementedToast}>
             <Text style={styles.reportText}>Reportar problema</Text>
           </TouchableOpacity>
         </View>
 
         {/* FAQs */}
-        <Text style={styles.sectionTitle}>Preguntas Frecuentes</Text>
-        <View style={styles.card}>
+        <Text style={[styles.sectionTitle, isDark && styles.sectionTitleDark]}>Preguntas Frecuentes</Text>
+        <View style={[styles.card, isDark && styles.cardDark]}>
           {FAQ_ITEMS.map((item, index) => (
             <ListItem
               key={item}
@@ -134,9 +150,7 @@ export default function SupportScreen() {
               isLast={index === FAQ_ITEMS.length - 1}
               icon="help-circle-outline"
               title={item}
-              onPress={() => {
-                /* Navigate to FAQ details */
-              }}
+              onPress={() => router.push({ pathname: '/(driver)/support/faq-details', params: { question: item }})}
               rightElement={renderChevron()}
             />
           ))}
@@ -148,6 +162,7 @@ export default function SupportScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.light.surface },
+  containerDark: { backgroundColor: Colors.dark.background },
   scroll: { padding: Spacing.lg },
   searchContainer: {
     flexDirection: 'row',
@@ -157,17 +172,21 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     ...Shadows.sm,
   },
+  searchContainerDark: { backgroundColor: Colors.dark.surface },
   searchInput: {
     flex: 1,
     fontSize: Typography.size.base,
     paddingVertical: Spacing.md,
+    color: Colors.light.text,
   },
+  searchInputDark: { color: Colors.dark.text },
   sectionTitle: {
     fontSize: Typography.size.md,
     fontWeight: Typography.weight.bold,
     color: Colors.light.text,
     marginVertical: Spacing.lg,
   },
+  sectionTitleDark: { color: Colors.dark.text },
   contactRow: {
     flexDirection: 'row',
     gap: Spacing.md,
@@ -194,6 +213,7 @@ const styles = StyleSheet.create({
     color: Colors.light.text,
     fontSize: Typography.size.sm,
   },
+  contactLabelDark: { color: Colors.dark.text },
   tripCard: {
     backgroundColor: Colors.base.white,
     padding: Spacing.md,
@@ -203,20 +223,26 @@ const styles = StyleSheet.create({
     borderLeftColor: Colors.brand.primary,
     ...Shadows.sm,
   },
+  cardDark: {
+    backgroundColor: Colors.dark.surface,
+  },
   tripTitle: {
     fontWeight: Typography.weight.bold,
     color: Colors.light.text,
     fontSize: Typography.size.base,
   },
+  tripTitleDark: { color: Colors.dark.text },
   tripDate: {
     fontSize: Typography.size.sm,
     color: Colors.light.textSecondary,
   },
+  tripDateDark: { color: Colors.dark.textSecondary },
   tripRoute: {
     color: Colors.light.textSecondary,
     marginVertical: Spacing.sm,
     fontSize: Typography.size.sm,
   },
+  tripRouteDark: { color: Colors.dark.textSecondary },
   reportBtn: {
     alignSelf: 'flex-start',
     marginTop: Spacing.sm,

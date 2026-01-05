@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { useRouter, Redirect, Stack } from 'expo-router';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/hooks/useAuth';
-import { Colors, Spacing, Typography, BorderRadius, Shadows } from '@/constants/theme';
+import { Colors, Spacing, Typography, BorderRadius, Shadows, hexWithOpacity } from '@/constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 
 interface Transaction {
@@ -28,7 +28,7 @@ export default function WalletScreen() {
   if (loading) {
     return (
         <View style={styles.centered}>
-            <ActivityIndicator size="large" color={Colors.light.primary} />
+            <ActivityIndicator size="large" color={Colors.brand.primary} />
         </View>
     );
   }
@@ -68,22 +68,22 @@ export default function WalletScreen() {
       
       <View style={styles.header}>
          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} />
+            <Ionicons name="arrow-back" size={24} color={Colors.light.text} />
          </TouchableOpacity>
          <Text style={styles.headerTitle}>Mi Billetera</Text>
          <TouchableOpacity>
-            <Ionicons name="ellipsis-horizontal" size={24} />
+            <Ionicons name="ellipsis-horizontal" size={24} color={Colors.light.text} />
          </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
         <LinearGradient
-            colors={[Colors.brand.primary, '#15B545']}
+            colors={[Colors.brand.primary, Colors.brand.primaryLight]}
             style={styles.balanceCard}
         >
             <Text style={styles.balanceLabel}>Balance Actual</Text>
-            <Text style={styles.balanceAmount}>,850.50</Text>
+            <Text style={styles.balanceAmount}>$2,850.50</Text>
             <View style={styles.balanceActions}>
                 <TouchableOpacity style={styles.balanceButton} onPress={handleWithdraw}>
                     <Ionicons name="arrow-down-circle-outline" size={20} color={Colors.brand.primary}/>
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 20,
   },
-  headerTitle: { fontSize: 22, fontWeight: 'bold' },
+  headerTitle: { fontSize: 22, fontWeight: 'bold', color: Colors.light.text },
   scrollContent: { paddingBottom: 30, paddingHorizontal: Spacing.lg },
 
   balanceCard: {
@@ -135,12 +135,12 @@ const styles = StyleSheet.create({
       marginBottom: Spacing.xl,
   },
   balanceLabel: {
-      color: 'rgba(255,255,255,0.8)',
+      color: hexWithOpacity(Colors.base.white, 0.8),
       fontSize: Typography.size.base,
       marginBottom: Spacing.xs,
   },
   balanceAmount: {
-      color: 'white',
+      color: Colors.base.white,
       fontSize: 48,
       fontWeight: 'bold',
       marginBottom: Spacing.lg,
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   balanceButton: {
       flex: 1,
       flexDirection: 'row',
-      backgroundColor: 'white',
+      backgroundColor: Colors.base.white,
       paddingVertical: Spacing.md,
       justifyContent: 'center',
       alignItems: 'center',
@@ -166,19 +166,19 @@ const styles = StyleSheet.create({
   },
 
   historyContainer: { 
-      backgroundColor: 'white',
+      backgroundColor: Colors.base.white,
       borderRadius: BorderRadius.xl,
       padding: Spacing.lg,
       ...Shadows.md
   },
-  sectionTitle: { fontSize: 18, fontWeight: '700', marginBottom: 15, color: '#333' },
+  sectionTitle: { fontSize: 18, fontWeight: '700', marginBottom: 15, color: Colors.light.text },
 
   transactionItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: Colors.grey[200],
   },
   iconBox: {
     width: 48,
@@ -189,8 +189,8 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   transactionInfo: { flex: 1 },
-  transactionTitle: { fontSize: 16, fontWeight: '600' },
-  transactionDate: { fontSize: 13, color: '#888', marginTop: 2 },
+  transactionTitle: { fontSize: 16, fontWeight: '600', color: Colors.light.text },
+  transactionDate: { fontSize: 13, color: Colors.light.textSecondary, marginTop: 2 },
   transactionAmount: { fontSize: 16, fontWeight: 'bold' },
   viewAllButton: { padding: 15, alignItems: 'center', marginTop: 10 },
   viewAllText: { color: Colors.brand.primary, fontWeight: '600', fontSize: Typography.size.base },

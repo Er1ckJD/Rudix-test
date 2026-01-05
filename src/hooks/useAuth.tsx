@@ -24,6 +24,7 @@ interface AuthContextType {
     logout: () => void;
     switchActiveRole: (role: UserRole) => void;
     clearError: () => void;
+    mockLogin: (user: User) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -47,6 +48,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 if (storedToken) {
                     setToken(storedToken);
                     
+                    if (storedToken.startsWith('mock')) {
+                        console.log('--- Mock session detected ---');
+                        // Si es un token mock, cargamos un usuario mock
+                        const mockUser: User = {
+                            id: 'mock-user-123',
+                            nombres: 'Kiki',
+                            apellidos: 'Mock',
+                            email: 'kiki.mock@rudix.com',
+                            telefono: '+123456789',
+                            roles: ['user', 'driver'],
+                            photoUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
+                        };
+                        setUser(mockUser);
+                        if (mockUser.roles.includes('driver')) {
+                            setActiveRole('driver');
+                        }
+                        return;
+                    }
+
                     const response = await AuthService.getCurrentUser();
                     
                     if (response.user) {
@@ -146,6 +166,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.warn(`User does not have the role: ${role}`);
         }
     };
+
+    const mockLogin = async (mockUser: User) => {
+        setLoading(true);
+        console.log('--- Performing mock login ---');
+        try {
+            const mockToken = 'mock-auth-token-12345';
+            const mockRefreshToken = 'mock-refresh-token-67890';
+            await storage.setSecureItem(TOKEN_KEY, mockToken);
+            await storage.setSecureItem(REFRESH_TOKEN_KEY, mockRefreshToken);
+            setUser(mockUser);
+            setToken(mockToken);
+            if (mockUser.roles.includes('driver')) {
+                setActiveRole('driver');
+            } else {
+                setActiveRole('user');
+            }
+        } catch (e) {
+            console.error("Mock login failed:", e);
+        } finally {
+            setLoading(false);
+        }
+    };
     
     const value = {
         user,
@@ -161,6 +203,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         logout,
         switchActiveRole,
         clearError,
+        mockLogin,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

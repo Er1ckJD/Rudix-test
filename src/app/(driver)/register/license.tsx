@@ -14,6 +14,11 @@ export default function LicenseScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
+        <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="arrow-back" size={28} color={Colors.base.black} />
+            </TouchableOpacity>
+        </View>
         <Text style={styles.title}>Licencia de Conducir</Text>
         
         <Text style={styles.sectionTitle}>Foto de tu licencia de conducir</Text>
@@ -23,15 +28,15 @@ export default function LicenseScreen() {
         </View>
 
         <Text style={styles.label}>Ingresa los siguientes datos:</Text>
-        <TextInput style={styles.input} placeholder="Número de Licencia" />
-        <TextInput style={styles.input} placeholder="Fecha de Expiración" />
+        <TextInput style={styles.input} placeholder="Número de Licencia" placeholderTextColor={Colors.grey[500]} />
+        <TextInput style={styles.input} placeholder="Fecha de Expiración" placeholderTextColor={Colors.grey[500]} />
 
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.btn} onPress={() => router.push('/driver/register/service-type')}>
+        <TouchableOpacity style={styles.btn} onPress={() => router.push('/(driver)/register/service-type')}>
             <Text style={styles.btnText}>Continuar</Text>
-            <Ionicons name="arrow-forward" size={20} color="#fff" />
+            <Ionicons name="arrow-forward" size={20} color={Colors.base.white} />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -39,14 +44,15 @@ export default function LicenseScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: Colors.base.white },
   scroll: { padding: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', color: Colors.light.primary, textAlign: 'center', marginBottom: 30 },
-  sectionTitle: { fontSize: 14, fontWeight: 'bold', color: '#666', textAlign: 'center', marginBottom: 15 },
+  header: { alignItems: 'flex-start', marginBottom: 20 },
+  title: { fontSize: 24, fontWeight: 'bold', color: Colors.brand.primary, textAlign: 'center', marginBottom: 30 },
+  sectionTitle: { fontSize: 14, fontWeight: 'bold', color: Colors.light.textSecondary, textAlign: 'center', marginBottom: 15 },
   photosRow: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 30 },
-  label: { fontSize: 14, fontWeight: 'bold', color: '#666', marginBottom: 10, textAlign: 'center' },
-  input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 10, padding: 15, marginBottom: 15, backgroundColor: '#fff' },
+  label: { fontSize: 14, fontWeight: 'bold', color: Colors.light.textSecondary, marginBottom: 10, textAlign: 'center' },
+  input: { borderWidth: 1, borderColor: Colors.grey[300], borderRadius: 10, padding: 15, marginBottom: 15, backgroundColor: Colors.base.white },
   footer: { padding: 20 },
-  btn: { backgroundColor: Colors.light.primary, padding: 15, borderRadius: 30, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10 },
-  btnText: { color: '#fff', fontWeight: 'bold', fontSize: 18 },
+  btn: { backgroundColor: Colors.brand.primary, padding: 15, borderRadius: 30, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10 },
+  btnText: { color: Colors.base.white, fontWeight: 'bold', fontSize: 18 },
 });

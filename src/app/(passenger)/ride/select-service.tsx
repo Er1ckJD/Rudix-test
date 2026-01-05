@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker } from 'react-native-maps';
 import Button from '@/components/ui/Button';
-import { Colors, Spacing, Typography, Shadows, BorderRadius } from '@/constants/theme';
+import { Colors, Spacing, Typography, Shadows, BorderRadius, hexWithOpacity } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useLocation } from '@/hooks/useLocation';
+import Toast from 'react-native-toast-message';
 
 // Opciones de servicio simuladas
 const SERVICE_OPTIONS = [
@@ -16,37 +19,43 @@ const SERVICE_OPTIONS = [
 export default function SelectServiceScreen() {
     const router = useRouter();
     const { destination } = useLocalSearchParams<{ destination: string }>();
+    const { colorScheme } = useColorScheme();
+    const { location } = useLocation();
+    const isDark = colorScheme === 'dark';
     const [selectedId, setSelectedId] = useState('eco');
 
     const handleConfirm = () => {
-        // Navegar a la pantalla de seguimiento del viaje
         router.push('/(passenger)/ride/tracking'); 
     };
 
+    if (!location) {
+        return <View style={styles.container}><ActivityIndicator /></View>
+    }
+
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, isDark && styles.containerDark]}>
             <Stack.Screen options={{ title: 'Elige tu viaje', headerShadowVisible: false }} />
             
             <View style={styles.mapContainer}>
                  <MapView 
                     style={StyleSheet.absoluteFill}
                     initialRegion={{
-                        latitude: 19.4326, 
-                        longitude: -99.1332,
+                        latitude: location.coords.latitude, 
+                        longitude: location.coords.longitude,
                         latitudeDelta: 0.05,
                         longitudeDelta: 0.05
                     }}
                  >
-                    <Marker coordinate={{ latitude: 19.4326, longitude: -99.1332 }} />
+                    <Marker coordinate={location.coords} />
                  </MapView>
                  
-                 <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color={Colors.base.black} />
+                 <TouchableOpacity style={[styles.backButton, isDark && styles.backButtonDark]} onPress={() => router.back()}>
+                    <Ionicons name="arrow-back" size={24} color={isDark ? Colors.dark.text : Colors.light.text} />
                  </TouchableOpacity>
             </View>
 
-            <View style={styles.bottomSheet}>
-                <Text style={styles.destinationTitle}>Viaje a {destination}</Text>
+            <View style={[styles.bottomSheet, isDark && styles.bottomSheetDark]}>
+                <Text style={[styles.destinationTitle, isDark && styles.textDark]}>Viaje a {destination}</Text>
                 
                 <FlatList
                     data={SERVICE_OPTIONS}
@@ -56,28 +65,29 @@ export default function SelectServiceScreen() {
                         <TouchableOpacity 
                             style={[
                                 styles.optionCard, 
+                                isDark && styles.optionCardDark,
                                 selectedId === item.id && styles.optionSelected
                             ]}
                             onPress={() => setSelectedId(item.id)}
                             activeOpacity={0.8}
                         >
                             <View style={styles.optionLeft}>
-                                <Ionicons name={item.icon as any} size={40} color={Colors.grey[800]} />
+                                <Ionicons name={item.icon as any} size={40} color={isDark ? Colors.dark.text : Colors.grey[800]} />
                                 <View>
-                                    <Text style={styles.optionName}>{item.name}</Text>
-                                    <Text style={styles.optionTime}>{item.time} • 4 min</Text>
+                                    <Text style={[styles.optionName, isDark && styles.textDark]}>{item.name}</Text>
+                                    <Text style={[styles.optionTime, isDark && styles.textDarkSecondary]}>{item.time} • 4 min</Text>
                                 </View>
                             </View>
-                            <Text style={styles.optionPrice}>${item.price.toFixed(2)}</Text>
+                            <Text style={[styles.optionPrice, isDark && styles.textDark]}>${item.price.toFixed(2)}</Text>
                         </TouchableOpacity>
                     )}
                 />
 
-                <View style={styles.paymentRow}>
-                    <Ionicons name="cash-outline" size={20} color={Colors.grey[800]} />
-                    <Text style={styles.paymentText}>Efectivo</Text>
+                <TouchableOpacity style={styles.paymentRow} onPress={() => Toast.show({ type: 'info', text1: 'Próximamente' })}>
+                    <Ionicons name="cash-outline" size={20} color={isDark ? Colors.dark.text : Colors.grey[800]} />
+                    <Text style={[styles.paymentText, isDark && styles.textDark]}>Efectivo</Text>
                     <Ionicons name="chevron-forward" size={16} color={Colors.grey[600]} />
-                </View>
+                </TouchableOpacity>
 
                 <Button 
                     title="Confirmar Viaje" 
@@ -95,6 +105,9 @@ const styles = StyleSheet.create({
       flex: 1, 
       backgroundColor: Colors.base.white 
     },
+    containerDark: { backgroundColor: Colors.dark.background },
+    textDark: { color: Colors.dark.text },
+    textDarkSecondary: { color: Colors.dark.textSecondary },
     mapContainer: { 
       flex: 1 
     },
@@ -107,6 +120,7 @@ const styles = StyleSheet.create({
       borderRadius: BorderRadius.full, 
       ...Shadows.lg 
     },
+    backButtonDark: { backgroundColor: Colors.dark.surface },
     
     bottomSheet: { 
         backgroundColor: Colors.base.white, 
@@ -116,6 +130,7 @@ const styles = StyleSheet.create({
         paddingBottom: Spacing.xl,
         ...Shadows.xl
     },
+    bottomSheetDark: { backgroundColor: Colors.dark.background },
     destinationTitle: { 
       fontSize: Typography.size.lg, 
       fontWeight: Typography.weight.bold, 
@@ -135,9 +150,10 @@ const styles = StyleSheet.create({
         borderColor: Colors.base.transparent,
         backgroundColor: Colors.grey[100]
     },
+    optionCardDark: { backgroundColor: Colors.dark.surface, borderColor: Colors.dark.border },
     optionSelected: { 
       borderColor: Colors.brand.primary, 
-      backgroundColor: Colors.brand.primary + '15' 
+      backgroundColor: hexWithOpacity(Colors.brand.primary, 0.1)
     },
     optionLeft: { 
       flexDirection: 'row', 

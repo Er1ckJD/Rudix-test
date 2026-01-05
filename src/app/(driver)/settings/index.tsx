@@ -20,15 +20,18 @@ import {
   Shadows,
 } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
-import ListItem from '@/components/ui/ListItem'; // Import the new component
+import ListItem from '@/components/ui/ListItem';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function DriverSettingsScreen() {
   const router = useRouter();
   const { logout } = useAuth();
+  const { colorScheme, setColorScheme } = useColorScheme();
   const [navApp, setNavApp] = useState<'waze' | 'google'>('google');
   const [sound, setSound] = useState(true);
-  const [nightMode, setNightMode] = useState(false);
 
+  const isDark = colorScheme === 'dark';
+  
   const handleLogout = () => {
     Alert.alert(
       'Cerrar Sesión',
@@ -48,14 +51,14 @@ export default function DriverSettingsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, isDark && styles.containerDark]}>
       <Stack.Screen
         options={{
           title: 'Configuración',
           headerBackTitle: 'Atrás',
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: Colors.light.surface },
-          headerTintColor: Colors.light.text,
+          headerStyle: { backgroundColor: isDark ? Colors.dark.surface : Colors.light.surface },
+          headerTintColor: isDark ? Colors.dark.text : Colors.light.text,
           headerTitleStyle: {
             fontSize: Typography.size.lg,
             fontWeight: Typography.weight.semibold,
@@ -64,8 +67,8 @@ export default function DriverSettingsScreen() {
       />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Navegación</Text>
-          <View style={styles.card}>
+          <Text style={[styles.sectionHeader, isDark && styles.sectionHeaderDark]}>Navegación</Text>
+          <View style={[styles.card, isDark && styles.cardDark]}>
             <ListItem
               isFirst
               icon="map-outline"
@@ -100,8 +103,8 @@ export default function DriverSettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Preferencias de la App</Text>
-          <View style={styles.card}>
+          <Text style={[styles.sectionHeader, isDark && styles.sectionHeaderDark]}>Preferencias de la App</Text>
+          <View style={[styles.card, isDark && styles.cardDark]}>
             <ListItem
               isFirst
               icon="volume-medium-outline"
@@ -124,8 +127,8 @@ export default function DriverSettingsScreen() {
               title="Modo Nocturno (Mapa)"
               rightElement={
                 <Switch
-                  value={nightMode}
-                  onValueChange={setNightMode}
+                  value={isDark}
+                  onValueChange={(value) => setColorScheme(value ? 'dark' : 'light')}
                   trackColor={{
                     false: Colors.grey[300],
                     true: Colors.brand.primary,
@@ -138,18 +141,16 @@ export default function DriverSettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Cuenta</Text>
-          <View style={styles.card}>
+          <Text style={[styles.sectionHeader, isDark && styles.sectionHeaderDark]}>Cuenta</Text>
+          <View style={[styles.card, isDark && styles.cardDark]}>
             <ListItem
               isFirst
               icon="car-sport-outline"
               title="Gestionar Vehículos"
-              onPress={() => {
-                /* Implementar navegación */
-              }}
+              onPress={() => router.push('/(driver)/settings/vehicles')}
               rightElement={
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text style={styles.itemValue}>Nissan Versa</Text>
+                  <Text style={[styles.itemValue, isDark && styles.itemValueDark]}>Nissan Versa</Text>
                   <Ionicons
                     name="chevron-forward"
                     size={20}
@@ -161,9 +162,7 @@ export default function DriverSettingsScreen() {
             <ListItem
               icon="document-text-outline"
               title="Documentos"
-              onPress={() => {
-                /* Implementar navegación */
-              }}
+              onPress={() => router.push('/(driver)/settings/documents')}
               rightElement={
                 <Ionicons
                   name="chevron-forward"
@@ -176,9 +175,7 @@ export default function DriverSettingsScreen() {
               isLast
               icon="person-outline"
               title="Editar Perfil"
-              onPress={() => {
-                /* Implementar navegación */
-              }}
+              onPress={() => router.push('/(driver)/settings/profile')}
               rightElement={
                 <Ionicons
                   name="chevron-forward"
@@ -190,7 +187,7 @@ export default function DriverSettingsScreen() {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+        <TouchableOpacity style={[styles.logoutBtn, isDark && styles.logoutBtnDark]} onPress={handleLogout}>
           <Ionicons
             name="log-out-outline"
             size={22}
@@ -199,7 +196,7 @@ export default function DriverSettingsScreen() {
           <Text style={styles.logoutText}>Cerrar Sesión</Text>
         </TouchableOpacity>
 
-        <Text style={styles.version}>Versión 1.0.5 (Build 2025)</Text>
+        <Text style={[styles.version, isDark && styles.versionDark]}>Versión 1.0.5 (Build 2025)</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -209,6 +206,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.surface,
+  },
+  containerDark: {
+    backgroundColor: Colors.dark.background,
   },
   scrollContainer: {
     padding: Spacing.lg,
@@ -221,6 +221,9 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
+  sectionHeaderDark: {
+    color: Colors.dark.textSecondary,
+  },
   section: {
     marginBottom: Spacing.lg,
   },
@@ -228,12 +231,18 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.base.white,
     borderRadius: BorderRadius.md,
     ...Shadows.sm,
-    overflow: 'hidden', // Ensures the list item corners are rounded
+    overflow: 'hidden',
+  },
+  cardDark: {
+    backgroundColor: Colors.dark.surface,
   },
   itemValue: {
     fontSize: Typography.size.base,
     color: Colors.light.textSecondary,
     marginRight: Spacing.xs,
+  },
+  itemValueDark: {
+    color: Colors.dark.textSecondary,
   },
   logoutBtn: {
     marginTop: Spacing.lg,
@@ -248,6 +257,10 @@ const styles = StyleSheet.create({
     ...Shadows.sm,
     gap: Spacing.sm,
   },
+  logoutBtnDark: {
+    backgroundColor: Colors.dark.surface,
+    borderColor: Colors.semantic.error,
+  },
   logoutText: {
     color: Colors.semantic.error,
     fontWeight: Typography.weight.bold,
@@ -259,5 +272,8 @@ const styles = StyleSheet.create({
     fontSize: Typography.size.sm,
     marginTop: Spacing.xl,
     marginBottom: Spacing.lg,
+  },
+  versionDark: {
+    color: Colors.dark.textSecondary,
   },
 });

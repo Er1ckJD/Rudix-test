@@ -67,5 +67,5 @@ export const useColorScheme = () => {
     if (context === undefined) {
         throw new Error('useColorScheme must be used within a ColorSchemeProvider');
     }
-    return context.colorScheme;
+    return context;
 };

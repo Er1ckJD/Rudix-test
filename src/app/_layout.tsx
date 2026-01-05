@@ -1,7 +1,7 @@
 // src/app/_layout.tsx
 import { useEffect } from 'react';
 import { View, Text } from 'react-native';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import 'react-native-reanimated';
@@ -12,15 +12,34 @@ import Constants from 'expo-constants';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { ColorSchemeProvider, useColorScheme } from '@/hooks/use-color-scheme';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-
 import { useAuthNavigation } from '@/hooks/useAuthNavigation';
+import { User } from '@/types/user';
 
 // Layout interno con acceso a auth
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-  const { loading } = useAuth();
+  const { loading, mockLogin } = useAuth();
   
   useAuthNavigation();
+
+  useEffect(() => {
+    if (__DEV__) {
+      (global as any).mockLogin = async () => {
+        console.log('Executing global mock login...');
+        const mockUser: User = {
+          id: 'mock-user-123',
+          nombres: 'Kiki',
+          apellidos: 'Mock',
+          email: 'kiki.mock@rudix.com',
+          telefono: '+123456789',
+          roles: ['user', 'driver'],
+          photoUrl: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
+        };
+        await mockLogin(mockUser);
+      };
+      console.log('--- Mock login function is available globally ---');
+    }
+  }, [mockLogin]);
 
   if (loading) {
     return (

@@ -15,6 +15,12 @@ export default function PersonalInfoScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
+        <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="arrow-back" size={28} color={Colors.base.black} />
+            </TouchableOpacity>
+        </View>
+
         <Text style={styles.title}>Ingresa tu información personal y oficial</Text>
         
         <Text style={styles.sectionTitle}>Foto de tu INE</Text>
@@ -23,20 +29,20 @@ export default function PersonalInfoScreen() {
             <PhotoUploadBox label="De Atrás" imageUri={backIne} onImageSelected={setBackIne} />
         </View>
 
-        <TextInput style={styles.input} placeholder="Ingresa tu NSS (Número de Seguro Social)" />
+        <TextInput style={styles.input} placeholder="Ingresa tu NSS (Número de Seguro Social)" placeholderTextColor={Colors.grey[500]} />
 
         <Text style={styles.question}>¿Resides actualmente en la dirección de tu INE?</Text>
         
         <TouchableOpacity style={styles.radioRow} onPress={() => setResidence('yes')}>
              <Text style={styles.radioLabel}>Sí</Text>
-             <Ionicons name={residence === 'yes' ? "radio-button-on" : "radio-button-off"} size={24} color={Colors.light.primary} />
+             <Ionicons name={residence === 'yes' ? "radio-button-on" : "radio-button-off"} size={24} color={Colors.brand.primary} />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.radioRow} onPress={() => setResidence('no')}>
              <View style={{flex: 1}}>
                 <Text style={styles.radioLabel}>No, favor de ingresar un comprobante de domicilio.</Text>
              </View>
-             <Ionicons name={residence === 'no' ? "radio-button-on" : "radio-button-off"} size={24} color={Colors.light.primary} />
+             <Ionicons name={residence === 'no' ? "radio-button-on" : "radio-button-off"} size={24} color={Colors.brand.primary} />
         </TouchableOpacity>
 
         {residence === 'no' && (
@@ -48,9 +54,9 @@ export default function PersonalInfoScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.btn} onPress={() => router.push('/driver/register/license')}>
+        <TouchableOpacity style={styles.btn} onPress={() => router.push('/(driver)/register/license')}>
             <Text style={styles.btnText}>Continuar</Text>
-            <Ionicons name="arrow-forward" size={20} color="#fff" />
+            <Ionicons name="arrow-forward" size={20} color={Colors.base.white} />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -58,16 +64,17 @@ export default function PersonalInfoScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: Colors.base.white },
   scroll: { padding: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', color: Colors.light.primary, textAlign: 'center', marginBottom: 30 },
-  sectionTitle: { fontSize: 14, fontWeight: 'bold', color: '#666', textAlign: 'center', marginBottom: 15 },
+  header: { alignItems: 'flex-start', marginBottom: 20 },
+  title: { fontSize: 24, fontWeight: 'bold', color: Colors.brand.primary, textAlign: 'center', marginBottom: 30 },
+  sectionTitle: { fontSize: 14, fontWeight: 'bold', color: Colors.light.textSecondary, textAlign: 'center', marginBottom: 15 },
   photosRow: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 30 },
-  input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 10, padding: 15, marginBottom: 30, backgroundColor: '#fff' },
-  question: { fontSize: 16, fontWeight: 'bold', color: '#666', textAlign: 'center', marginBottom: 20 },
-  radioRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
-  radioLabel: { color: '#666' },
+  input: { borderWidth: 1, borderColor: Colors.grey[300], borderRadius: 10, padding: 15, marginBottom: 30, backgroundColor: Colors.base.white },
+  question: { fontSize: 16, fontWeight: 'bold', color: Colors.light.textSecondary, textAlign: 'center', marginBottom: 20 },
+  radioRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: Colors.grey[200] },
+  radioLabel: { color: Colors.light.textSecondary },
   footer: { padding: 20 },
-  btn: { backgroundColor: Colors.light.primary, padding: 15, borderRadius: 30, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10 },
-  btnText: { color: '#fff', fontWeight: 'bold', fontSize: 18 },
+  btn: { backgroundColor: Colors.brand.primary, padding: 15, borderRadius: 30, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10 },
+  btnText: { color: Colors.base.white, fontWeight: 'bold', fontSize: 18 },
 });

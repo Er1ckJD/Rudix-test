@@ -6,11 +6,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { Colors, Spacing, Typography } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function RatingScreen() {
   const router = useRouter();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const handleSubmit = () => {
     // Aquí enviarías la calificación al backend
@@ -19,21 +22,21 @@ export default function RatingScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, isDark && styles.containerDark]}>
       <Stack.Screen options={{ headerShown: false }} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.keyboardAvoiding}>
         
         <View style={styles.content}>
             <Text style={styles.title}>¡Llegaste a tu destino!</Text>
-            <Text style={styles.subtitle}>¿Cómo estuvo tu viaje con Carlos?</Text>
+            <Text style={[styles.subtitle, isDark && styles.textDarkSecondary]}>¿Cómo estuvo tu viaje con Carlos?</Text>
 
             <View style={styles.driverContainer}>
                 {/* Reemplazar con componente de Avatar si se crea */}
-                <View style={styles.avatar}>
+                <View style={[styles.avatar, isDark && styles.avatarDark]}>
                     <Text style={styles.avatarText}>C</Text>
                 </View>
-                <Text style={styles.driverName}>Carlos Mendoza</Text>
-                <Text style={styles.carInfo}>Nissan Versa • 723-AZW</Text>
+                <Text style={[styles.driverName, isDark && styles.textDark]}>Carlos Mendoza</Text>
+                <Text style={[styles.carInfo, isDark && styles.textDarkSecondary]}>Nissan Versa • 723-AZW</Text>
             </View>
 
             {/* Estrellas */}
@@ -65,7 +68,7 @@ export default function RatingScreen() {
             />
         </View>
 
-        <View style={styles.footer}>
+        <View style={[styles.footer, isDark && styles.footerDark]}>
             <Button 
                 title="Enviar Calificación" 
                 onPress={handleSubmit} 
@@ -91,6 +94,7 @@ const styles = StyleSheet.create({
     flex: 1, 
     backgroundColor: Colors.base.white 
   },
+  containerDark: { backgroundColor: Colors.dark.background },
   keyboardAvoiding: {
     flex: 1,
     justifyContent: 'space-between',
@@ -112,6 +116,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xl, 
     textAlign: 'center' 
   },
+  textDark: { color: Colors.dark.text },
+  textDarkSecondary: { color: Colors.dark.textSecondary },
   
   driverContainer: { 
     alignItems: 'center', 
@@ -126,6 +132,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
+  avatarDark: { backgroundColor: Colors.grey[800] },
   avatarText: {
     fontSize: Typography.size.xxxl,
     color: Colors.brand.primary,
@@ -163,4 +170,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1, 
     borderTopColor: Colors.grey[100] 
   },
+  footerDark: {
+    borderTopColor: Colors.dark.border,
+  }
 });

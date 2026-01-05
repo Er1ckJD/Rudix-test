@@ -2,8 +2,9 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { Colors } from '@/constants/theme';
+import { Colors, Shadows } from '@/constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function ServiceTypeScreen() {
   const router = useRouter();
@@ -12,7 +13,7 @@ export default function ServiceTypeScreen() {
   const ServiceCard = ({ title, description, benefits, type }: any) => (
     <TouchableOpacity 
         style={styles.card}
-        onPress={() => router.push({ pathname: '/driver/register/vehicle-info', params: { type } })}
+        onPress={() => router.push({ pathname: '/(driver)/register/vehicle-info', params: { type } })}
     >
         <Image 
             // Usa una imagen de coche placeholder por ahora
@@ -29,6 +30,11 @@ export default function ServiceTypeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="arrow-back" size={28} color={Colors.base.black} />
+            </TouchableOpacity>
+        </View>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <Text style={styles.title}>¿Qué tipo de servicio te gustaría ofrecer?</Text>
         <Text style={styles.subtitle}>Con las comisiones más bajas del mercado</Text>
@@ -58,23 +64,24 @@ export default function ServiceTypeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: Colors.base.white },
   scrollContainer: { padding: 20, alignItems: 'center' },
-  title: { fontSize: 26, fontWeight: 'bold', color: Colors.light.primary, textAlign: 'center', marginBottom: 10 },
-  subtitle: { fontSize: 14, color: '#888', marginBottom: 40 },
+  header: { width: '100%', alignItems: 'flex-start', paddingHorizontal: 20, paddingTop: 10, paddingBottom: 10 },
+  title: { fontSize: 26, fontWeight: 'bold', color: Colors.brand.primary, textAlign: 'center', marginBottom: 10 },
+  subtitle: { fontSize: 14, color: Colors.light.textSecondary, marginBottom: 40 },
   
   card: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: Colors.base.white,
     borderRadius: 15,
     padding: 15,
     marginBottom: 20,
     alignItems: 'center',
-    elevation: 4, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5, shadowOffset:{width:0, height:2}
+    ...Shadows.md,
   },
   carImage: { width: 80, height: 50, resizeMode: 'contain', marginRight: 15 },
   textContainer: { flex: 1 },
-  cardTitle: { fontSize: 18, fontWeight: 'bold', color: Colors.light.primary, marginBottom: 5 },
-  cardDesc: { fontSize: 12, color: '#666', marginBottom: 5 },
-  cardBenefits: { fontSize: 11, color: '#888' },
+  cardTitle: { fontSize: 18, fontWeight: 'bold', color: Colors.brand.primary, marginBottom: 5 },
+  cardDesc: { fontSize: 12, color: Colors.light.textSecondary, marginBottom: 5 },
+  cardBenefits: { fontSize: 11, color: Colors.grey[500] },
 });

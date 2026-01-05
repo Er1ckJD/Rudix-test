@@ -2,7 +2,7 @@
 // ========================================
 // AUTH SERVICE - Ready para backend
 // ========================================
-
+import axios from 'axios';
 import { apiClient, isMockMode } from '@/api/client';
 import { MOCK_USER } from '@/mocks';
 import { storage } from '@/utils/storage';
@@ -14,6 +14,12 @@ import type {
   VerifyOTPRequest,
   RegisterRequest,
 } from '@/types/api';
+
+// Este cliente es para llamadas que no deben usar interceptores (ej. refresh token)
+const authApiClient = axios.create({
+  baseURL: apiClient.defaults.baseURL,
+  timeout: 5000,
+});
 
 export class AuthService {
   // ============================================
@@ -154,16 +160,14 @@ export class AuthService {
   // LOGOUT
   // ============================================
   static async logout() {
-    if (isMockMode()) {
-      await delay(300);
-      // Solo limpiar storage local
-      await storage.removeSecureItem('userToken');
-      await storage.removeSecureItem('refreshToken');
-      return;
+    if (!isMockMode()) {
+        // Notificar al backend en segundo plano sin esperar a que complete
+        authApiClient.post('/auth/logout').catch(err => {
+            console.warn('Logout request to backend failed:', err.message);
+        });
     }
     
-    // Notificar al backend
-    await apiClient.post('/auth/logout');
+    // Limpiar storage local inmediatamente para una experiencia de usuario rápida
     await storage.removeSecureItem('userToken');
     await storage.removeSecureItem('refreshToken');
   }
@@ -180,7 +184,8 @@ export class AuthService {
       };
     }
     
-    const { data } = await apiClient.post('/auth/refresh', {
+    // Usa el cliente sin interceptores para evitar bucles
+    const { data } = await authApiClient.post('/auth/refresh', {
       refreshToken,
     });
     

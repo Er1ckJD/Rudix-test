@@ -11,6 +11,8 @@ import RideRequestModal from '@/components/driver/RideRequestModal';
 import { useAuth } from '@/hooks/useAuth';
 import TripActionSheet, { TripStatus } from './TripActionSheet';
 import TripSummaryModal from './TripSummaryModal';
+import { useLocation } from '@/hooks/useLocation';
+import Toast from 'react-native-toast-message';
 
 // Los estilos JSON son específicos de Google Maps.
 // Al usar el mapa nativo (Apple Maps en iOS), estos estilos se ignorarán automáticamente.
@@ -29,6 +31,7 @@ export default function DriverHomeScreen() {
   const router = useRouter();
   const { openDrawer } = useDrawer();
   const { user } = useAuth();
+  const { location } = useLocation();
   const [isOnline, setIsOnline] = useState(false);
   const [requestVisible, setRequestVisible] = useState(false);
   const [currentTripStatus, setCurrentTripStatus] = useState<TripStatus | null>(null);
@@ -77,7 +80,10 @@ export default function DriverHomeScreen() {
 
   const handleAcceptTrip = () => {
     setRequestVisible(false);
-    alert('¡Viaje Aceptado!');
+    Toast.show({
+      type: 'success',
+      text1: '¡Viaje Aceptado!',
+    });
   };
 
   return (
@@ -85,15 +91,15 @@ export default function DriverHomeScreen() {
       <MapView
         style={StyleSheet.absoluteFill}
         customMapStyle={Platform.OS === 'android' ? MAP_STYLE : undefined}
-        initialRegion={{
-          latitude: 37.78825,
-          longitude: -122.4324,
+        initialRegion={location ? {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
-        }}
+        } : undefined}
       >
-        {isOnline && (
-          <Marker coordinate={{ latitude: 37.78825, longitude: -122.4324 }}>
+        {isOnline && location && (
+          <Marker coordinate={location.coords}>
             <View style={styles.carMarker}>
               <View style={styles.carPulse} />
               <Ionicons name="car" size={24} color={Colors.base.white} />
@@ -131,7 +137,7 @@ export default function DriverHomeScreen() {
               </TouchableOpacity>
               <View style={{width: 80}} />
               <TouchableOpacity style={styles.optionItem}>
-                  <Ionicons name="list" size={24} color={Colors.grey[1100]} />
+                  <Ionicons name="list" size={24} color={Colors.grey[900]} />
                   <Text style={styles.optionLabel}>Agenda</Text>
               </TouchableOpacity>
           </View>

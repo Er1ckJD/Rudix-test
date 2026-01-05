@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/theme';
@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNotifications } from '@/hooks/useNotifications';
 import * as Clipboard from 'expo-clipboard';
+import Toast from 'react-native-toast-message';
 
 export default function NotificationsScreen() {
   const router = useRouter();
@@ -14,10 +15,11 @@ export default function NotificationsScreen() {
 
   const handleNext = () => {
     if (!expoPushToken) {
-        Alert.alert(
-            "Habilitar Notificaciones",
-            "Por favor, habilita las notificaciones para continuar."
-        );
+        Toast.show({
+            type: 'error',
+            text1: 'Habilitar Notificaciones',
+            text2: 'Por favor, habilita las notificaciones para continuar.',
+        });
         return;
     }
     router.push('/(driver)/register/success');
@@ -26,18 +28,27 @@ export default function NotificationsScreen() {
   const copyToClipboard = async () => {
     if (expoPushToken) {
         await Clipboard.setStringAsync(expoPushToken);
-        Alert.alert("Copiado", "Token de notificación copiado al portapapeles.");
+        Toast.show({
+            type: 'success',
+            text1: 'Copiado',
+            text2: 'Token de notificación copiado al portapapeles.',
+        });
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="arrow-back" size={28} color={Colors.base.black} />
+            </TouchableOpacity>
+        </View>
       <Text style={styles.title}>Activa las notificaciones para no perderte viajes</Text>
       
       <Image source={require('@/assets/images/react-logo.png')} style={styles.image} contentFit="contain" />
 
       <View style={styles.content}>
-        <Ionicons name="notifications-circle" size={80} color={Colors.light.primary} />
+        <Ionicons name="notifications-circle" size={80} color={Colors.brand.primary} />
         <Text style={styles.infoText}>
             Para brindarte el mejor servicio y notificarte sobre nuevas solicitudes de viaje, necesitamos tu permiso para enviarte notificaciones.
         </Text>
@@ -47,14 +58,14 @@ export default function NotificationsScreen() {
                 <Text style={styles.tokenTitle}>¡Permiso Concedido!</Text>
                 <Text style={styles.tokenText} numberOfLines={2}>{expoPushToken}</Text>
                 <TouchableOpacity style={styles.copyButton} onPress={copyToClipboard}>
-                    <Ionicons name="copy-outline" size={20} color={Colors.light.primary} />
+                    <Ionicons name="copy-outline" size={20} color={Colors.brand.primary} />
                     <Text style={styles.copyButtonText}>Copiar Token</Text>
                 </TouchableOpacity>
             </View>
         ) : (
             <View style={styles.tokenContainer}>
-                <ActivityIndicator size="large" color={Colors.light.primary} />
-                <Text style={{marginTop: 10, color: '#666'}}>Obteniendo permiso...</Text>
+                <ActivityIndicator size="large" color={Colors.brand.primary} />
+                <Text style={{marginTop: 10, color: Colors.light.textSecondary}}>Obteniendo permiso...</Text>
             </View>
         )}
       </View>
@@ -62,7 +73,7 @@ export default function NotificationsScreen() {
       <View style={styles.footer}>
         <TouchableOpacity style={styles.btn} onPress={handleNext}>
               <Text style={styles.btnText}>Siguiente</Text>
-              <Ionicons name="arrow-forward" size={20} color="#fff" />
+              <Ionicons name="arrow-forward" size={20} color={Colors.base.white} />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -70,8 +81,9 @@ export default function NotificationsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', paddingHorizontal: 20, paddingTop: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', color: Colors.light.primary, textAlign: 'center', marginTop: 30, marginBottom: 20 },
+  container: { flex: 1, backgroundColor: Colors.base.white, paddingHorizontal: 20, paddingTop: 20 },
+  header: { width: '100%', alignItems: 'flex-start', marginBottom: 10 },
+  title: { fontSize: 24, fontWeight: 'bold', color: Colors.brand.primary, textAlign: 'center', marginTop: 10, marginBottom: 20 },
   image: { width: 120, height: 120, marginBottom: 20, alignSelf: 'center', opacity: 0.1 },
   content: {
     flex: 1,
@@ -82,7 +94,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 16,
-    color: '#666',
+    color: Colors.light.textSecondary,
     textAlign: 'center',
     marginTop: 20,
     lineHeight: 24,
@@ -91,18 +103,18 @@ const styles = StyleSheet.create({
       marginTop: 30,
       alignItems: 'center',
       padding: 15,
-      backgroundColor: '#f5f5f5',
+      backgroundColor: Colors.grey[100],
       borderRadius: 15,
       width: '100%',
   },
   tokenTitle: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: Colors.light.primary,
+      color: Colors.brand.primary,
   },
   tokenText: {
       fontSize: 12,
-      color: '#999',
+      color: Colors.grey[500],
       textAlign: 'center',
       marginVertical: 10,
   },
@@ -113,13 +125,13 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   copyButtonText: {
-    color: Colors.light.primary,
+    color: Colors.brand.primary,
     fontWeight: 'bold',
   },
   footer: {
     paddingVertical: 20,
     width: '100%',
   },
-  btn: { backgroundColor: Colors.light.primary, padding: 15, borderRadius: 30, flexDirection: 'row', width: '100%', justifyContent: 'center', alignItems: 'center', gap: 10 },
-  btnText: { color: '#fff', fontWeight: 'bold', fontSize: 18 },
+  btn: { backgroundColor: Colors.brand.primary, padding: 15, borderRadius: 30, flexDirection: 'row', width: '100%', justifyContent: 'center', alignItems: 'center', gap: 10 },
+  btnText: { color: Colors.base.white, fontWeight: 'bold', fontSize: 18 },
 });

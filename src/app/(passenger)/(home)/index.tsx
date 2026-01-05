@@ -3,31 +3,25 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import MapView, { Marker, Region } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { useDrawer } from '@/hooks/useDrawer';
-import { Colors, Spacing, Typography, Shadows, BorderRadius } from '@/constants/theme';
+import { Colors, Spacing, Typography, Shadows, BorderRadius, hexWithOpacity } from '@/constants/theme';
 import { useLocation } from '@/hooks/useLocation';
+import Toast from 'react-native-toast-message';
 
-function PassengerHomeScreen() {
+export default function PassengerHomeScreen() {
   const router = useRouter();
   const { openDrawer } = useDrawer();
   const insets = useSafeAreaInsets();
   const { location, errorMsg, hasPermission } = useLocation();
   const mapRef = useRef<MapView>(null);
-
-  const INITIAL_REGION: Region = {
-    latitude: 19.4326,
-    longitude: -99.1332,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
-  };
   
   const handleSearchPress = () => {
     router.push('/(passenger)/ride/search');
   };
 
   const handleProfilePress = () => {
-    router.push('/profile');
+    router.push('/(passenger)/profile');
   };
 
   const goToMyLocation = () => {
@@ -96,6 +90,7 @@ function PassengerHomeScreen() {
 
           <View style={styles.locationPill}>
              <View style={styles.greenDot} />
+             {/* TODO: Implement reverse geocoding to show current address */}
              <Text style={styles.locationText}>Kristel St, CDMX</Text>
              <Ionicons name="chevron-down" size={16} color={Colors.grey[700]} />
           </View>
@@ -164,13 +159,12 @@ function PassengerHomeScreen() {
   );
 }
 
-export default function HomeScreen() {
-  return <PassengerHomeScreen />;
-}
-
 const FavoriteItem = ({ icon, color, title, subtitle }: any) => (
-    <TouchableOpacity style={styles.favItem}>
-        <View style={[styles.favIconCircle, { backgroundColor: color + '20' }]}> 
+    <TouchableOpacity 
+        style={styles.favItem}
+        onPress={() => Toast.show({ type: 'info', text1: 'Función no implementada' })}
+    >
+        <View style={[styles.favIconCircle, { backgroundColor: hexWithOpacity(color, 0.1) }]}> 
             <Ionicons name={icon} size={22} color={color} />
         </View>
         <View style={styles.favTextContainer}>
