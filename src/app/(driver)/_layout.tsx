@@ -10,7 +10,7 @@ export default function DriverLayout() {
       <Drawer
         drawerContent={(props) => <CustomDrawerContent {...props} />}
         screenOptions={{
-          headerShown: false,
+          headerShown: false, // O true, según tu diseño global. Aquí lo tenías en false en el ejemplo anterior
           drawerType: 'front',
           drawerStyle: {
             width: '75%',
@@ -18,9 +18,9 @@ export default function DriverLayout() {
           },
         }}
       >
-        {/* Pantalla principal (sin tabs, solo mapa) */}
+        {/* 1. Inicio */}
         <Drawer.Screen
-          name="(home)"
+          name="(home)/index"
           options={{
             drawerLabel: 'Inicio',
             title: 'Modo Conductor',
@@ -28,7 +28,7 @@ export default function DriverLayout() {
           }}
         />
 
-        {/* Registro conductor (oculto del drawer) */}
+        {/* 2. Registro (Oculto) */}
         <Drawer.Screen
           name="register"
           options={{
@@ -36,9 +36,9 @@ export default function DriverLayout() {
           }}
         />
 
-        {/* Ganancias */}
+        {/* 3. Ganancias */}
         <Drawer.Screen
-          name="earnings"
+          name="earnings/index"
           options={{
             drawerLabel: 'Ganancias',
             title: 'Mi Billetera',
@@ -46,9 +46,9 @@ export default function DriverLayout() {
           }}
         />
 
-        {/* Fidelidad */}
+        {/* 4. Fidelidad */}
         <Drawer.Screen
-          name="fidelity"
+          name="fidelity/index"
           options={{
             drawerLabel: 'Fidelity',
             title: 'RuDix Fidelity',
@@ -56,9 +56,19 @@ export default function DriverLayout() {
           }}
         />
 
-        {/* Configuración */}
+        {/* 5. Soporte */}
         <Drawer.Screen
-          name="settings"
+          name="support/index"
+          options={{
+            drawerLabel: 'Soporte',
+            title: 'Centro de Soporte',
+            drawerIcon: ({ color, size }) => <Ionicons name="help-buoy-outline" size={size} color={color} />,
+          }}
+        />
+
+        {/* 6. Configuración (El menú principal) */}
+        <Drawer.Screen
+          name="settings/index"
           options={{
             drawerLabel: 'Configuración',
             title: 'Configuración',
@@ -66,15 +76,53 @@ export default function DriverLayout() {
           }}
         />
 
-        {/* Soporte */}
+        {/* ========================================================
+            SUB-PANTALLAS OCULTAS (Para arreglar los nombres raros)
+           ======================================================== */}
+        
+        {/* Configuración > Perfil */}
         <Drawer.Screen
-          name="support"
+          name="settings/profile"
           options={{
-            drawerLabel: 'Soporte',
-            title: 'Centro de Soporte',
-            drawerIcon: ({ color, size }) => <Ionicons name="help-buoy-outline" size={size} color={color} />,
+            drawerItemStyle: { display: 'none' }, // Oculto del menú
+            title: 'Editar Perfil' // Título en el header
           }}
         />
+
+        {/* Configuración > Vehículos */}
+        <Drawer.Screen
+          name="settings/vehicles"
+          options={{
+            drawerItemStyle: { display: 'none' },
+            title: 'Mis Vehículos'
+          }}
+        />
+
+        {/* Configuración > Documentos */}
+        <Drawer.Screen
+          name="settings/documents"
+          options={{
+            drawerItemStyle: { display: 'none' },
+            title: 'Mis Documentos'
+          }}
+        />
+
+        {/* Otras rutas internas que ya teníamos ocultas */}
+        <Drawer.Screen
+            name="earnings/withdraw"
+            options={{ 
+              drawerItemStyle: { display: 'none' },
+              title: 'Retirar Fondos' 
+            }}
+        />
+        <Drawer.Screen
+            name="support/faq-details"
+            options={{ 
+              drawerItemStyle: { display: 'none' },
+              title: 'Detalle de Ayuda'
+            }}
+        />
+        
       </Drawer>
     </GestureHandlerRootView>
   );

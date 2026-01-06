@@ -18,9 +18,9 @@ export default function PassengerLayout() {
           },
         }}
       >
-        {/* Pantalla principal con tabs */}
+        {/* 1. Inicio */}
         <Drawer.Screen
-          name="(home)"
+          name="(home)" 
           options={{
             drawerLabel: 'Inicio',
             title: 'Inicio',
@@ -28,17 +28,17 @@ export default function PassengerLayout() {
           }}
         />
         
-        {/* Stack de viajes */}
+        {/* 2. Viaje (Tiene layout propio, así que "ride" está bien) */}
         <Drawer.Screen
           name="ride"
           options={{
-            drawerItemStyle: { display: 'none' }, // No visible en drawer
+            drawerItemStyle: { display: 'none' },
           }}
         />
 
-        {/* Fidelidad */}
+        {/* 3. Fidelidad (Si no tiene layout interno, usa fidelity/index) */}
         <Drawer.Screen
-          name="fidelity"
+          name="fidelity/index"
           options={{
             drawerLabel: 'Fidelity',
             title: 'RuDix Fidelity',
@@ -46,9 +46,9 @@ export default function PassengerLayout() {
           }}
         />
 
-        {/* Notificaciones */}
+        {/* 4. Notificaciones */}
         <Drawer.Screen
-          name="notifications"
+          name="notifications/index"
           options={{
             drawerLabel: 'Notificaciones',
             title: 'Notificaciones',
@@ -56,7 +56,7 @@ export default function PassengerLayout() {
           }}
         />
 
-        {/* Perfil */}
+        {/* 5. Perfil (Tiene layout propio, "profile" está bien) */}
         <Drawer.Screen
           name="profile"
           options={{
@@ -66,9 +66,9 @@ export default function PassengerLayout() {
           }}
         />
 
-        {/* Seguridad */}
+        {/* 6. Seguridad (CORREGIDO) */}
         <Drawer.Screen
-          name="safety"
+          name="safety/index" // Apuntamos al archivo principal
           options={{
             drawerLabel: 'Seguridad',
             title: 'Seguridad',
@@ -76,9 +76,9 @@ export default function PassengerLayout() {
           }}
         />
 
-        {/* Configuración */}
+        {/* 7. Configuración */}
         <Drawer.Screen
-          name="settings"
+          name="settings/index"
           options={{
             drawerLabel: 'Configuración',
             title: 'Configuración',
@@ -86,15 +86,38 @@ export default function PassengerLayout() {
           }}
         />
 
-        {/* Soporte */}
+        {/* 8. Soporte (CORREGIDO) */}
         <Drawer.Screen
-          name="support"
+          name="support/index" // Apuntamos al archivo principal
           options={{
             drawerLabel: 'Soporte',
             title: 'Centro de Soporte',
             drawerIcon: ({ color, size }) => <Ionicons name="help-buoy-outline" size={size} color={color} />,
           }}
         />
+
+        {/* =========================================================
+            OCULTAR RUTAS SECUNDARIAS (LO QUE FALTABA)
+           ========================================================= */}
+        
+        {/* Ocultar Contactos de Seguridad */}
+        <Drawer.Screen
+          name="safety/contacts"
+          options={{
+            drawerItemStyle: { display: 'none' }, // Esto lo quita del menú
+            title: 'Contactos de Confianza'
+          }}
+        />
+
+        {/* Ocultar FAQs de Soporte */}
+        <Drawer.Screen
+          name="support/faqs"
+          options={{
+            drawerItemStyle: { display: 'none' }, // Esto lo quita del menú
+            title: 'Preguntas Frecuentes'
+          }}
+        />
+
       </Drawer>
     </GestureHandlerRootView>
   );

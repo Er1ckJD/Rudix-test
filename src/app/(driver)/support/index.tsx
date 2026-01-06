@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
-import { useRouter, Stack } from 'expo-router';
+import { useRouter, Stack, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -21,6 +21,7 @@ import {
 import ListItem from '@/components/ui/ListItem';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import Toast from 'react-native-toast-message';
+import { DrawerActions } from '@react-navigation/native';
 
 const FAQ_ITEMS = [
   'No recibí el pago de mi viaje',
@@ -32,6 +33,7 @@ const FAQ_ITEMS = [
 
 export default function SupportScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
   const [searchQuery, setSearchQuery] = useState('');
@@ -61,9 +63,9 @@ export default function SupportScreen() {
             fontWeight: Typography.weight.semibold,
           },
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()}>
+            <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
               <Ionicons
-                name="arrow-back"
+                name="menu"
                 size={24}
                 color={isDark ? Colors.dark.text : Colors.light.text}
               />
