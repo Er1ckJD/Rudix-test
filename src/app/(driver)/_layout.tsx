@@ -70,8 +70,8 @@ export default function DriverLayout() {
         <Drawer.Screen
           name="support"
           options={{
-            drawerLabel: 'Ayuda',
-            title: 'Centro de Ayuda',
+            drawerLabel: 'Soporte',
+            title: 'Centro de Soporte',
             drawerIcon: ({ color, size }) => <Ionicons name="help-buoy-outline" size={size} color={color} />,
           }}
         />

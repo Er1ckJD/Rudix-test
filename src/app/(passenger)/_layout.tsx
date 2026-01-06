@@ -61,7 +61,7 @@ export default function PassengerLayout() {
           name="profile"
           options={{
             drawerLabel: 'Mi Perfil',
-            title: 'Perfil',
+            title: 'Mi Perfil',
             drawerIcon: ({ color, size }) => <Ionicons name="person-outline" size={size} color={color} />,
           }}
         />
@@ -90,8 +90,8 @@ export default function PassengerLayout() {
         <Drawer.Screen
           name="support"
           options={{
-            drawerLabel: 'Ayuda',
-            title: 'Centro de Ayuda',
+            drawerLabel: 'Soporte',
+            title: 'Centro de Soporte',
             drawerIcon: ({ color, size }) => <Ionicons name="help-buoy-outline" size={size} color={color} />,
           }}
         />

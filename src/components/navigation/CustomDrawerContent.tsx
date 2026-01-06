@@ -62,31 +62,7 @@ export default function CustomDrawerContent(props: any) {
 
         {/* Items del drawer */}
         <View style={styles.menuContainer}>
-          {props.state.routes.map((route: any, index: number) => {
-            const { options } = props.descriptors[route.key];
-            
-            if (options.drawerItemStyle?.display === 'none') {
-              return null;
-            }
-
-            return (
-              <DrawerItem
-                key={route.key}
-                icon={({ color, size }) => options.drawerIcon ? options.drawerIcon({ color, size }) : null}
-                label={({ focused, color }) => (
-                  <Text style={{ color, fontWeight: focused ? 'bold' : 'normal' }}>
-                    {options.drawerLabel || options.title || route.name}
-                  </Text>
-                )}
-                focused={props.state.index === index}
-                onPress={() => {
-                  props.navigation.navigate(route.name);
-                }}
-                activeTintColor={Colors.brand.primary}
-                inactiveTintColor={Colors.grey[800]}
-              />
-            );
-          })}
+          <DrawerItemList {...props} />
         </View>
 
       </DrawerContentScrollView>
