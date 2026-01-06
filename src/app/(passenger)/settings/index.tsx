@@ -9,7 +9,8 @@ import {
   Switch,
   Alert,
 } from 'react-native';
-import { useRouter, Stack } from 'expo-router';
+import { useRouter, Stack, useNavigation } from 'expo-router'; // 1. Agregar useNavigation
+import { DrawerActions } from '@react-navigation/native'; // 2. Agregar DrawerActions
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -21,10 +22,11 @@ import {
   Shadows,
 } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
-import ListItem from '@/components/ui/ListItem'; // Import the new component
+import ListItem from '@/components/ui/ListItem';
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const navigation = useNavigation(); // 3. Inicializar navigation
   const { user, logout } = useAuth();
 
   // Estados de los toggles
@@ -32,6 +34,7 @@ export default function SettingsScreen() {
   const [ubicacionDeterminada, setUbicacionDeterminada] = useState(false);
   const [accesibilidad, setAccesibilidad] = useState(false);
 
+  // ... (Tus funciones handleLogout y handleDeleteAccount siguen igual)
   const handleLogout = () => {
     Alert.alert(
       'Cerrar Sesión',
@@ -60,7 +63,6 @@ export default function SettingsScreen() {
           text: 'Eliminar',
           style: 'destructive',
           onPress: () => {
-            // Lógica para eliminar cuenta
             console.log('Eliminar cuenta');
           },
         },
@@ -82,8 +84,9 @@ export default function SettingsScreen() {
           colors={[Colors.brand.primary, Colors.brand.primaryLight]}
           style={styles.header}
         >
+          {/* 4. CORRECCIÓN AQUÍ: Usar dispatch(openDrawer) en lugar de router.back() */}
           <TouchableOpacity
-            onPress={() => router.back()}
+            onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
             style={styles.backButton}
           >
             <Ionicons name="menu" size={28} color={Colors.base.white} />
@@ -91,10 +94,12 @@ export default function SettingsScreen() {
           <Text style={styles.headerTitle}>Configuración</Text>
         </LinearGradient>
 
+        {/* ... (El resto del código se mantiene IDÉNTICO) ... */}
+        
         {/* Profile Card */}
         <TouchableOpacity
           style={styles.profileCard}
-          onPress={() => router.push('/profile')}
+          onPress={() => router.push('/(passenger)/profile')}
           activeOpacity={0.8}
         >
           <View style={styles.profileAvatar}>
@@ -140,14 +145,14 @@ export default function SettingsScreen() {
               icon="person-circle-outline"
               title="Perfil"
               subtitle="Editar información personal"
-              onPress={() => router.push('/profile')}
+              onPress={() => router.push('/(passenger)/profile')}
               rightElement={renderChevron()}
             />
             <ListItem
               icon="card-outline"
               title="Métodos de pago"
               subtitle="Gestionar tarjetas y pagos"
-              onPress={() => router.push('/profile/payment-methods')}
+              onPress={() => router.push('/(passenger)/profile/payment-methods')}
               rightElement={renderChevron()}
             />
             <ListItem

@@ -1,13 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { useRouter, Stack } from 'expo-router';
+import { useRouter, Stack, useNavigation } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors, Shadows, hexWithOpacity } from '@/constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { DrawerActions } from '@react-navigation/native';
 
 export default function FidelityScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
 
@@ -38,8 +40,8 @@ export default function FidelityScreen() {
           headerTintColor: Colors.dark.text,
           headerTitleAlign: 'center',
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 10 }}>
-              <Ionicons name="arrow-back" size={24} color={Colors.dark.text} />
+            <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())} style={{ marginLeft: 10 }}>
+              <Ionicons name="menu" size={24} color={Colors.dark.text} />
             </TouchableOpacity>
           )
         }} 

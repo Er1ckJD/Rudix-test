@@ -9,7 +9,8 @@ import {
   Switch,
   Alert,
 } from 'react-native';
-import { useRouter, Stack } from 'expo-router';
+import { useRouter, Stack, useNavigation } from 'expo-router'; // 1. Agregar useNavigation
+import { DrawerActions } from '@react-navigation/native'; // 2. Agregar DrawerActions
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -25,6 +26,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function DriverSettingsScreen() {
   const router = useRouter();
+  const navigation = useNavigation(); // 3. Inicializar navigation
   const { logout } = useAuth();
   const { colorScheme, setColorScheme } = useColorScheme();
   const [navApp, setNavApp] = useState<'waze' | 'google'>('google');
@@ -55,7 +57,7 @@ export default function DriverSettingsScreen() {
       <Stack.Screen
         options={{
           title: 'Configuración',
-          headerBackTitle: 'Atrás',
+          // headerBackTitle: 'Atrás', // Quita esto
           headerShadowVisible: false,
           headerStyle: { backgroundColor: isDark ? Colors.dark.surface : Colors.light.surface },
           headerTintColor: isDark ? Colors.dark.text : Colors.light.text,
@@ -63,8 +65,20 @@ export default function DriverSettingsScreen() {
             fontSize: Typography.size.lg,
             fontWeight: Typography.weight.semibold,
           },
+          // 4. AGREGAR ESTO: Botón de menú explícito
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
+              <Ionicons
+                name="menu" 
+                size={24}
+                color={isDark ? Colors.dark.text : Colors.light.text}
+              />
+            </TouchableOpacity>
+          ),
         }}
       />
+      
+      {/* ... (Resto del código idéntico) ... */}
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.section}>
           <Text style={[styles.sectionHeader, isDark && styles.sectionHeaderDark]}>Navegación</Text>

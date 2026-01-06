@@ -12,13 +12,11 @@ export default function PassengerLayout() {
         screenOptions={{
           headerShown: false,
           drawerType: 'front',
-          drawerStyle: {
-            width: '75%',
-            backgroundColor: '#fff',
-          },
+          drawerStyle: { width: '75%', backgroundColor: '#fff' },
         }}
       >
-        {/* 1. Inicio */}
+        {/* === PANTALLAS PRINCIPALES === */}
+
         <Drawer.Screen
           name="(home)" 
           options={{
@@ -27,18 +25,15 @@ export default function PassengerLayout() {
             drawerIcon: ({ color, size }) => <Ionicons name="home-outline" size={size} color={color} />,
           }}
         />
-        
-        {/* 2. Viaje (Tiene layout propio, así que "ride" está bien) */}
+
+        {/* 'ride' tiene su propio _layout, así que el nombre es solo la carpeta */}
         <Drawer.Screen
           name="ride"
-          options={{
-            drawerItemStyle: { display: 'none' },
-          }}
+          options={{ drawerItemStyle: { display: 'none' } }} 
         />
 
-        {/* 3. Fidelidad (Si no tiene layout interno, usa fidelity/index) */}
         <Drawer.Screen
-          name="fidelity/index"
+          name="fidelity/index" // Fidelity NO tiene layout, así que /index es correcto
           options={{
             drawerLabel: 'Fidelity',
             title: 'RuDix Fidelity',
@@ -46,7 +41,6 @@ export default function PassengerLayout() {
           }}
         />
 
-        {/* 4. Notificaciones */}
         <Drawer.Screen
           name="notifications/index"
           options={{
@@ -56,7 +50,7 @@ export default function PassengerLayout() {
           }}
         />
 
-        {/* 5. Perfil (Tiene layout propio, "profile" está bien) */}
+        {/* 'profile' tiene layout propio */}
         <Drawer.Screen
           name="profile"
           options={{
@@ -66,9 +60,9 @@ export default function PassengerLayout() {
           }}
         />
 
-        {/* 6. Seguridad (CORREGIDO) */}
+        {/* AQUÍ ESTABA EL PROBLEMA: safety/index explícito */}
         <Drawer.Screen
-          name="safety/index" // Apuntamos al archivo principal
+          name="safety/index"
           options={{
             drawerLabel: 'Seguridad',
             title: 'Seguridad',
@@ -76,7 +70,6 @@ export default function PassengerLayout() {
           }}
         />
 
-        {/* 7. Configuración */}
         <Drawer.Screen
           name="settings/index"
           options={{
@@ -86,9 +79,9 @@ export default function PassengerLayout() {
           }}
         />
 
-        {/* 8. Soporte (CORREGIDO) */}
+        {/* AQUÍ ESTABA EL OTRO PROBLEMA: support/index explícito */}
         <Drawer.Screen
-          name="support/index" // Apuntamos al archivo principal
+          name="support/index"
           options={{
             drawerLabel: 'Soporte',
             title: 'Centro de Soporte',
@@ -96,25 +89,22 @@ export default function PassengerLayout() {
           }}
         />
 
-        {/* =========================================================
-            OCULTAR RUTAS SECUNDARIAS (LO QUE FALTABA)
-           ========================================================= */}
-        
-        {/* Ocultar Contactos de Seguridad */}
+        {/* === PANTALLAS OCULTAS (Sub-páginas) === */}
+        {/* Esto evita que aparezca "safety\contacts" en el menú */}
         <Drawer.Screen
           name="safety/contacts"
           options={{
-            drawerItemStyle: { display: 'none' }, // Esto lo quita del menú
-            title: 'Contactos de Confianza'
+            drawerItemStyle: { display: 'none' },
+            title: 'Contactos de Confianza',
           }}
         />
 
-        {/* Ocultar FAQs de Soporte */}
+        {/* Esto evita que aparezca "support\faqs" en el menú */}
         <Drawer.Screen
           name="support/faqs"
           options={{
-            drawerItemStyle: { display: 'none' }, // Esto lo quita del menú
-            title: 'Preguntas Frecuentes'
+            drawerItemStyle: { display: 'none' },
+            title: 'Preguntas Frecuentes',
           }}
         />
 

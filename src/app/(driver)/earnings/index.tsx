@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { useRouter, Redirect, Stack } from 'expo-router';
+import { useRouter, Redirect, Stack, useNavigation } from 'expo-router';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/hooks/useAuth';
 import { Colors, Spacing, Typography, BorderRadius, Shadows, hexWithOpacity } from '@/constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
+import { DrawerActions } from '@react-navigation/native';
 
 interface Transaction {
   id: string;
@@ -23,6 +24,7 @@ const recentTransactions: Transaction[] = [
 
 export default function WalletScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -67,8 +69,8 @@ export default function WalletScreen() {
       <LinearGradient colors={[Colors.grey[100], Colors.base.white]} style={styles.background} />
       
       <View style={styles.header}>
-         <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color={Colors.light.text} />
+         <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
+            <Ionicons name="menu" size={24} color={Colors.light.text} />
          </TouchableOpacity>
          <Text style={styles.headerTitle}>Mi Billetera</Text>
          <TouchableOpacity>

@@ -1,16 +1,18 @@
 // src/app/(passenger)/notifications/index.tsx
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, useNavigation } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MOCK_NOTIFICATIONS } from '@/mocks/notifications';
 import { Colors, Spacing, Typography, Shadows, BorderRadius } from '@/constants/theme';
+import { DrawerActions } from '@react-navigation/native';
 
 import { NotificationType, NotificationItem } from '@/types/notification';
 
 export default function NotificationsScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
   const [activeFilter, setActiveFilter] = useState<NotificationType>('all');
   const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
 
@@ -75,7 +77,7 @@ export default function NotificationsScreen() {
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())} style={styles.backButton}>
           <Ionicons name="menu" size={28} color={Colors.base.white} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Notificaciones</Text>
